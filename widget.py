@@ -37,12 +37,14 @@ class widget(QWidget):
         self.actuator1 = QDial(self)
         self.actuator1.setGeometry(QRect(70, 280, 50, 64))
         self.actuator1.setObjectName("qDial")
+
         self.actuator2 = QDial(self)
         self.actuator2.setGeometry(QRect(130, 240, 50, 64))
         self.actuator2.setObjectName("qDial")
-        self.actuator2 = QDial(self)
-        self.actuator2.setGeometry(QRect(190, 280, 50, 64))
-        self.actuator2.setObjectName("qDial")
+
+        self.actuator3 = QDial(self)
+        self.actuator3.setGeometry(QRect(190, 280, 50, 64))
+        self.actuator3.setObjectName("qDial")
         # Function that will execute when the button is clicked
     def estop_pressed(self):
         print('Stop')
