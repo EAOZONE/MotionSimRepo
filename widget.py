@@ -57,11 +57,11 @@ class widget(QWidget):
         self.actuator3.valueChanged.connect(self.on_dial_rotate_actuator3)
 
         self.image = QGraphicsView(self)
-        self.image.setGeometry(QRect(270,210,256,192))
+        self.image.setGeometry(QRect(300,210,192,192))
         self.image.setObjectName("qGrpahicsView")
 
         self.scene = QGraphicsScene()
-        pixmap = QPixmap("TPED-Logo.png")
+        pixmap = QPixmap("TPED-logo.jpg")
         pixmap = pixmap.scaled(186, 186)
 
         self.scene.addPixmap(pixmap)
