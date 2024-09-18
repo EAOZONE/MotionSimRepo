@@ -12,17 +12,19 @@ class widget(QWidget):
     def setupUi(self):
         self.setGeometry(QRect(0, 0, 800, 600))
         self.setWindowTitle("Widget")
+        self.setStyleSheet("background-color: lightgray;")
 
         self.eStop = QPushButton(self)
         self.eStop.setGeometry(QRect(310, 400, 171, 71))
         self.eStop.setObjectName("pushButton")
         self.eStop.setText("E-Stop")
-        # Connect the pushButton to a function on click
+        self.eStop.setStyleSheet("background-color: red; color: white;")
         self.eStop.clicked.connect(self.estop_pressed)
 
         self.home = QPushButton(self)
         self.home.setGeometry(QRect(100, 340, 171, 71))
         self.home.setObjectName("pushButton")
+        self.home.setStyleSheet("background-color: green; color: white;")
         self.home.setText("Home")
 
         self.home.clicked.connect(self.home_pressed)
@@ -31,11 +33,13 @@ class widget(QWidget):
         self.enableAll.setGeometry(QRect(310, 450, 171, 71))
         self.enableAll.setObjectName("checkBox")
         self.enableAll.setText("Enable All")
+        self.enableAll.setStyleSheet("color: black;")
         self.enableAll.stateChanged.connect(self.toggle_enabled)
 
         self.scrollBox = QScrollArea(self)
         self.scrollBox.setGeometry(QRect(530, 210, 171, 191))
         self.scrollBox.setObjectName("scrollArea")
+        self.scrollBox.setStyleSheet("background-color: white; color: black;")
 
         self.actuator1 = QDial(self)
         self.actuator1.setGeometry(QRect(100, 280, 50, 64))
@@ -63,9 +67,6 @@ class widget(QWidget):
         self.scene.addPixmap(pixmap)
         self.image.setScene(self.scene)
     def estop_pressed(self):
-        if not self.enabled:
-            print("Action blocked: System is not enabled.")
-            return
         print('Stop')
     def home_pressed(self):
         if not self.enabled:
