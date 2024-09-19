@@ -1,6 +1,6 @@
 from PySide6.QtCore import QRect, Qt
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QCheckBox, QScrollArea, QSlider, QGraphicsView, QGraphicsScene
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QPixmap, QKeyEvent
 import sys
 
 
@@ -16,7 +16,7 @@ class widget(QWidget):
         self.setStyleSheet("background-color: lightgray;")
 
         self.eStop = QPushButton(self)
-        self.eStop.setGeometry(QRect(310, 400, 171, 71))
+        self.eStop.setGeometry(QRect(310, 400, 171, 100))
         self.eStop.setObjectName("pushButton")
         self.eStop.setText("E-Stop")
         self.eStop.setStyleSheet("background-color: red; color: white;")
@@ -27,14 +27,12 @@ class widget(QWidget):
         self.home.setObjectName("pushButton")
         self.home.setStyleSheet("background-color: green; color: white;")
         self.home.setText("Home")
-
         self.home.clicked.connect(self.home_pressed)
 
         self.enableAll = QCheckBox(self)
-        self.enableAll.setGeometry(QRect(310, 450, 171, 71))
+        self.enableAll.setGeometry(QRect(310, 500, 171, 71))
         self.enableAll.setObjectName("checkBox")
         self.enableAll.setText("Enable All")
-        self.enableAll.setStyleSheet("color: black;")
         self.enableAll.stateChanged.connect(self.toggle_enabled)
 
         self.scrollBox = QScrollArea(self)
@@ -97,6 +95,12 @@ class widget(QWidget):
     def toggle_enabled(self):
         self.enabled = not self.enabled
         print(self.enabled)
+    def keyPressEvent(self, event: QKeyEvent):
+            # Check if spacebar is pressed
+            if event.key() == Qt.Key_Space:
+                self.estop_pressed()  # Call the E-Stop function
+            else:
+                super().keyPressEvent(event)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
