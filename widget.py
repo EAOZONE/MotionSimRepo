@@ -1,7 +1,8 @@
-from PySide6.QtCore import QRect
-from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QCheckBox, QScrollArea, QDial, QGraphicsView, QGraphicsScene
+from PySide6.QtCore import QRect, Qt
+from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QCheckBox, QScrollArea, QSlider, QGraphicsView, QGraphicsScene
 from PySide6.QtGui import QPixmap
 import sys
+
 
 class widget(QWidget):
     def __init__(self):
@@ -41,19 +42,19 @@ class widget(QWidget):
         self.scrollBox.setObjectName("scrollArea")
         self.scrollBox.setStyleSheet("background-color: white; color: black;")
 
-        self.actuator1 = QDial(self)
-        self.actuator1.setGeometry(QRect(100, 280, 50, 64))
-        self.actuator1.setObjectName("qDial")
+        self.actuator1 = QSlider(Qt.Horizontal, self)
+        self.actuator1.setGeometry(QRect(100, 280, 64, 50))
+        self.actuator1.setObjectName("horizontalSlider")
         self.actuator1.valueChanged.connect(self.on_dial_rotate_actuator1)
 
-        self.actuator2 = QDial(self)
-        self.actuator2.setGeometry(QRect(160, 240, 50, 64))
-        self.actuator2.setObjectName("qDial")
+        self.actuator2 = QSlider(Qt.Horizontal, self)
+        self.actuator2.setGeometry(QRect(160, 240, 64, 50))
+        self.actuator2.setObjectName("horizontalSlider")
         self.actuator2.valueChanged.connect(self.on_dial_rotate_actuator2)
 
-        self.actuator3 = QDial(self)
-        self.actuator3.setGeometry(QRect(220, 280, 50, 64))
-        self.actuator3.setObjectName("qDial")
+        self.actuator3 = QSlider(Qt.Horizontal, self)
+        self.actuator3.setGeometry(QRect(220, 280, 64, 50))
+        self.actuator3.setObjectName("horizontalSlider")
         self.actuator3.valueChanged.connect(self.on_dial_rotate_actuator3)
 
         self.image = QGraphicsView(self)
@@ -68,6 +69,8 @@ class widget(QWidget):
         self.image.setScene(self.scene)
     def estop_pressed(self):
         print('Stop')
+        if self.enabled:
+            self.enableAll.setChecked(False)
     def home_pressed(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")

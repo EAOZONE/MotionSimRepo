@@ -16,7 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QDial, QGraphicsView,
-    QPushButton, QScrollArea, QSizePolicy, QWidget)
+    QPushButton, QScrollArea, QSizePolicy, QSlider,
+    QWidget)
 
 class Ui_Widget(object):
     def setupUi(self, Widget):
@@ -52,6 +53,10 @@ class Ui_Widget(object):
         self.checkBox = QCheckBox(Widget)
         self.checkBox.setObjectName(u"checkBox")
         self.checkBox.setGeometry(QRect(310, 470, 171, 51))
+        self.horizontalSlider = QSlider(Widget)
+        self.horizontalSlider.setObjectName(u"horizontalSlider")
+        self.horizontalSlider.setGeometry(QRect(110, 240, 71, 20))
+        self.horizontalSlider.setOrientation(Qt.Orientation.Horizontal)
 
         self.retranslateUi(Widget)
 
