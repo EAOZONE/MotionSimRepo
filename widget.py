@@ -1,6 +1,8 @@
 from PySide6.QtCore import QRect, Qt
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QCheckBox, QScrollArea, QSlider, QGraphicsView, QVBoxLayout, QGraphicsScene
 from PySide6.QtGui import QPixmap, QKeyEvent
+import serial
+import time
 import sys
 
 
@@ -9,6 +11,7 @@ class widget(QWidget):
         self.enabled = False
         super().__init__()
         self.setupUi()
+        self.arduino = serial.Serial(port='COM3', baudrate=115200, timeout=.1)
 
     def setupUi(self):
         self.setGeometry(QRect(0, 0, 800, 600))
@@ -62,6 +65,12 @@ class widget(QWidget):
         self.image.setScene(self.scene)
         self.setup_scrollbox()
 
+    def write_read(self, x):
+        self.arduino.write(bytes(str(x), 'utf-8'))
+        time.sleep(0.05)
+        data = self.arduino.readline()
+        return data
+
     def setup_scrollbox(self):
         self.scrollBox = QScrollArea(self)
         self.scrollBox.setGeometry(QRect(530, 210, 171, 191))
@@ -94,16 +103,19 @@ class widget(QWidget):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
+        print(self.write_read(self.actuator1.value()))
         print(f"Dial rotated to: {self.actuator1.value()}")
     def on_dial_rotate_actuator2(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
+        print(self.write_read(self.actuator2.value()))
         print(f"Dial rotated to: {self.actuator2.value()}")
     def on_dial_rotate_actuator3(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
+        print(self.write_read(self.actuator3.value()))
         print(f"Dial rotated to: {self.actuator3.value()}")
     def toggle_enabled(self):
         self.enabled = not self.enabled
@@ -114,7 +126,6 @@ class widget(QWidget):
                 self.estop_pressed()  # Call the E-Stop function
             else:
                 super().keyPressEvent(event)
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     widget = widget()
