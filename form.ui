@@ -115,19 +115,14 @@
     <string>Enable All</string>
    </property>
   </widget>
-  <widget class="QSlider" name="horizontalSlider">
-   <property name="geometry">
-    <rect>
-     <x>110</x>
-     <y>240</y>
-     <width>71</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Orientation::Horizontal</enum>
-   </property>
-  </widget>
+  <zorder>Actuator2</zorder>
+  <zorder>pushButton</zorder>
+  <zorder>graphicsView</zorder>
+  <zorder>scrollArea</zorder>
+  <zorder>Actuator1</zorder>
+  <zorder>Actuator3</zorder>
+  <zorder>pushButton_2</zorder>
+  <zorder>checkBox</zorder>
  </widget>
  <resources/>
  <connections/>

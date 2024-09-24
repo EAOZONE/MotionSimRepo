@@ -1,5 +1,5 @@
 from PySide6.QtCore import QRect, Qt
-from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QCheckBox, QScrollArea, QSlider, QGraphicsView, QGraphicsScene
+from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QCheckBox, QScrollArea, QSlider, QGraphicsView, QVBoxLayout, QGraphicsScene
 from PySide6.QtGui import QPixmap, QKeyEvent
 import sys
 
@@ -35,11 +35,6 @@ class widget(QWidget):
         self.enableAll.setText("Enable All")
         self.enableAll.stateChanged.connect(self.toggle_enabled)
 
-        self.scrollBox = QScrollArea(self)
-        self.scrollBox.setGeometry(QRect(530, 210, 171, 191))
-        self.scrollBox.setObjectName("scrollArea")
-        self.scrollBox.setStyleSheet("background-color: white; color: black;")
-
         self.actuator1 = QSlider(Qt.Horizontal, self)
         self.actuator1.setGeometry(QRect(100, 280, 64, 50))
         self.actuator1.setObjectName("horizontalSlider")
@@ -65,10 +60,28 @@ class widget(QWidget):
 
         self.scene.addPixmap(pixmap)
         self.image.setScene(self.scene)
+        self.setup_scrollbox()
+
+    def setup_scrollbox(self):
+        self.scrollBox = QScrollArea(self)
+        self.scrollBox.setGeometry(QRect(530, 210, 171, 191))
+        self.scrollBox.setObjectName("scrollArea")
+        self.scrollBox.setStyleSheet("background-color: white; color: black;")
+
+        self.scrollWidget = QWidget()
+        self.scrollLayout = QVBoxLayout(self.scrollWidget)
+
+        for name in ['Name1', 'Name2', 'Name3', 'Name4']:  # Replace with your names
+                button = QPushButton(name)
+                button.clicked.connect(lambda checked, n=name: self.on_name_clicked(n))  # Connect button click to function
+                self.scrollLayout.addWidget(button)
+        self.scrollBox.setWidget(self.scrollWidget)
     def estop_pressed(self):
         print('Stop')
         if self.enabled:
             self.enableAll.setChecked(False)
+    def on_name_clicked(self, name):
+        print(f"{name} clicked")
     def home_pressed(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
