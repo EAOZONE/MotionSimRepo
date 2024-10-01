@@ -5,13 +5,19 @@ import serial
 import time
 import sys
 
+from serial.serialutil import SerialException
+
 
 class widget(QWidget):
     def __init__(self):
         self.enabled = False
         super().__init__()
         self.setupUi()
-        self.arduino = serial.Serial(port='COM3', baudrate=115200, timeout=.1)
+        try:
+            self.arduino = serial.Serial(port='COM3', baudrate=115200, timeout=.1)
+        except(SerialException):
+            self.arduino = serial.Serial()
+            print("No arduino")
 
     def setupUi(self):
         self.setGeometry(QRect(0, 0, 800, 600))
@@ -67,6 +73,7 @@ class widget(QWidget):
 
     def write_read(self, x):
         self.arduino.write(bytes(str(x), 'utf-8'))
+        print(x)
         time.sleep(0.05)
         data = self.arduino.readline()
         return data
@@ -103,19 +110,19 @@ class widget(QWidget):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-        print(self.write_read(self.actuator1.value()))
+        print(self.write_read("1"+str(self.actuator1.value())))
         print(f"Dial rotated to: {self.actuator1.value()}")
     def on_dial_rotate_actuator2(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-        print(self.write_read(self.actuator2.value()))
+        print(self.write_read("2"+str(self.actuator2.value())))
         print(f"Dial rotated to: {self.actuator2.value()}")
     def on_dial_rotate_actuator3(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-        print(self.write_read(self.actuator3.value()))
+        print(self.write_read("3"+str(self.actuator3.value())))
         print(f"Dial rotated to: {self.actuator3.value()}")
     def toggle_enabled(self):
         self.enabled = not self.enabled

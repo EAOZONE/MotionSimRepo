@@ -1,16 +1,38 @@
 #include <Servo.h>
-int x;
-Servo myservo;
+String x;
+int x_1;
+String actuator;
+int actuator_num;
+Servo actuator_1;
+Servo actuator_2;
+Servo actuator_3;
 int val;
 void setup() {
 	Serial.begin(115200);
 	Serial.setTimeout(1);
-  myservo.attach(9);
+  actuator_1.attach(9);
+  actuator_2.attach(10);
+  actuator_3.attach(11);
 }
 void loop() {
 	while (!Serial.available());
-	x = Serial.readString().toInt();
-  val = x;
-  myservo.write(x);
-	Serial.print(x + 1);
+	x = Serial.readString();
+  actuator = x[0];
+  x.remove(0, 1);
+  actuator_num = actuator.toInt();
+  Serial.print(actuator);
+  x_1 = x.toInt();
+  val = x_1;
+  if(actuator == "1")
+  {
+    actuator_1.write(val);
+  }
+  else if(actuator == "2")
+  {
+    actuator_2.write(val);
+  }
+  else if(actuator_num == 3)
+  {
+    actuator_3.write(val);
+  }
 }
