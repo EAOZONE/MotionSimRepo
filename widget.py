@@ -6,12 +6,15 @@ import serial.tools.list_ports  # Import this module to list available ports
 import time
 import sys
 import platform
+import math
 
 from serial.serialutil import SerialException
 
 
 class widget(QWidget):
     def __init__(self):
+        self.actuator1 = 0
+        self.actuator2 = 0
         self.enabled = False
         super().__init__()
         self.setupUi()
@@ -66,20 +69,26 @@ class widget(QWidget):
         self.enableAll.setText("Enable All")
         self.enableAll.stateChanged.connect(self.toggle_enabled)
 
-        self.actuator1 = QSlider(Qt.Horizontal, self)
-        self.actuator1.setGeometry(QRect(100, 280, 64, 50))
-        self.actuator1.setObjectName("horizontalSlider")
-        self.actuator1.valueChanged.connect(self.on_dial_rotate_actuator1)
+        self.angle1 = QSlider(Qt.Horizontal, self)
+        self.angle1.setGeometry(QRect(100, 280, 64, 50))
+        self.angle1.setObjectName("horizontalSlider")
+        self.angle1.valueChanged.connect(self.on_dial_rotate_actuator1)
+        self.angle1.setMinimum(-45)
+        self.angle1.setMaximum(45)
 
-        self.actuator2 = QSlider(Qt.Horizontal, self)
-        self.actuator2.setGeometry(QRect(160, 240, 64, 50))
-        self.actuator2.setObjectName("horizontalSlider")
-        self.actuator2.valueChanged.connect(self.on_dial_rotate_actuator2)
+        self.angle2 = QSlider(Qt.Horizontal, self)
+        self.angle2.setGeometry(QRect(160, 240, 64, 50))
+        self.angle2.setObjectName("horizontalSlider")
+        self.angle2.valueChanged.connect(self.on_dial_rotate_actuator2)
+        self.angle2.setMinimum(-45)
+        self.angle2.setMaximum(45)
 
-        self.actuator3 = QSlider(Qt.Horizontal, self)
-        self.actuator3.setGeometry(QRect(220, 280, 64, 50))
-        self.actuator3.setObjectName("horizontalSlider")
-        self.actuator3.valueChanged.connect(self.on_dial_rotate_actuator3)
+        self.angle3 = QSlider(Qt.Horizontal, self)
+        self.angle3.setGeometry(QRect(220, 280, 64, 50))
+        self.angle3.setObjectName("horizontalSlider")
+        self.angle3.valueChanged.connect(self.on_dial_rotate_actuator3)
+        self.angle3.setMinimum(-45)
+        self.angle3.setMaximum(45)
 
         self.image = QGraphicsView(self)
         self.image.setGeometry(QRect(300,210,192,192))
@@ -125,27 +134,31 @@ class widget(QWidget):
             print("Action blocked: System is not enabled.")
             return
         print('Home')
-        self.actuator1.setValue(0)
-        self.actuator2.setValue(0)
-        self.actuator3.setValue(0)
+        self.angle1.setValue(0)
+        self.angle2.setValue(0)
+        self.angle3.setValue(0)
     def on_dial_rotate_actuator1(self):
+        self.calculateLength()
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-        #print(self.write_read("1"+str(self.actuator1.value())))
-        print(f"Dial rotated to: {self.actuator1.value()}")
+        print(self.write_read("1"+str(self.actuator1)))
+        print(self.write_read("2" + str(self.actuator2)))
+        print(f"Dial rotated to: {self.angle1.value()}")
     def on_dial_rotate_actuator2(self):
+        self.calculateLength()
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-        #print(self.write_read("2"+str(self.actuator2.value())))
-        print(f"Dial rotated to: {self.actuator2.value()}")
+        print(self.write_read("1" + str(self.actuator1)))
+        print(self.write_read("2"+str(self.actuator2)))
+        print(f"Dial rotated to: {self.angle2.value()}")
     def on_dial_rotate_actuator3(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-        #print(self.write_read("3"+str(self.actuator3.value())))
-        print(f"Dial rotated to: {self.actuator3.value()}")
+        print(self.write_read("3"+str(self.angle3.value())))
+        print(f"Dial rotated to: {self.angle3.value()}")
     def toggle_enabled(self):
         self.enabled = not self.enabled
         print(self.enabled)
@@ -155,6 +168,13 @@ class widget(QWidget):
                 self.estop_pressed()  # Call the E-Stop function
             else:
                 super().keyPressEvent(event)
+    def calculateLength(self):
+        #constants
+        A = 1
+        B = 1
+        self.actuator1 = A*math.tan(self.angle1.value()*math.pi/180)+B*math.tan(self.angle2.value()*math.pi/180)
+        self.actuator2 = A*math.tan(self.angle1.value()*math.pi/180)-B*math.tan(self.angle2.value()*math.pi/180)
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     widget = widget()
