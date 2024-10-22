@@ -2,8 +2,10 @@ from PySide6.QtCore import QRect, Qt
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QCheckBox, QScrollArea, QSlider, QGraphicsView, QVBoxLayout, QGraphicsScene
 from PySide6.QtGui import QPixmap, QKeyEvent
 import serial
+import serial.tools.list_ports  # Import this module to list available ports
 import time
 import sys
+import platform
 
 from serial.serialutil import SerialException
 
@@ -13,11 +15,31 @@ class widget(QWidget):
         self.enabled = False
         super().__init__()
         self.setupUi()
-        try:
-            self.arduino = serial.Serial(port='COM3', baudrate=115200, timeout=.1)
-        except(SerialException):
-            self.arduino = serial.Serial()
-            print("No arduino")
+        self.arduino_port_name = None  # Store the name of the Arduino port
+        self.arduino = None  # The actual serial connection
+
+        self.arduino_port_name = self.detect_arduino_port()
+        if self.arduino_port_name:
+            try:
+                self.arduino = serial.Serial(port=self.arduino_port_name, baudrate=115200, timeout=.1)
+                print(f"Connected to Arduino on Port: {self.arduino_port_name}")
+            except SerialException as e:
+                print(f"Failed to connect to Arduino: {e}")
+                self.arduino = None
+        else:
+            print("No arduino port detected")
+
+
+    def detect_arduino_port(self):
+        system_platform = platform.system()
+        ports = list(serial.tools.list_ports.comports())
+        for port in ports:
+            if system_platform == "Windows" and "Arduino" in port.description:
+                return port.device
+            elif system_platform == "Darwin":
+                if port.device.startswith("/dev/cu.usbmodem"):
+                    return port.device
+        return None
 
     def setupUi(self):
         self.setGeometry(QRect(0, 0, 800, 600))
@@ -110,19 +132,19 @@ class widget(QWidget):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-        print(self.write_read("1"+str(self.actuator1.value())))
+        #print(self.write_read("1"+str(self.actuator1.value())))
         print(f"Dial rotated to: {self.actuator1.value()}")
     def on_dial_rotate_actuator2(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-        print(self.write_read("2"+str(self.actuator2.value())))
+        #print(self.write_read("2"+str(self.actuator2.value())))
         print(f"Dial rotated to: {self.actuator2.value()}")
     def on_dial_rotate_actuator3(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-        print(self.write_read("3"+str(self.actuator3.value())))
+        #print(self.write_read("3"+str(self.actuator3.value())))
         print(f"Dial rotated to: {self.actuator3.value()}")
     def toggle_enabled(self):
         self.enabled = not self.enabled
