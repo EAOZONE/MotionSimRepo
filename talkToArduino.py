@@ -5,6 +5,8 @@ import time
 import serial
 from serial.serialutil import SerialException
 
+from readCSV import saveFileAsArr
+
 
 class ArdiunoTalk():
     def __init__(self):
@@ -53,3 +55,7 @@ class ArdiunoTalk():
             print(self.write_read(command))
         else:
             print("Arduino not connected")
+    def runThroughFile(self, fileName):
+        arr = saveFileAsArr(fileName)
+        for i in range(len(arr)):
+            self.send_all_angles(arr[i][0], arr[i][1], arr[i][2])
