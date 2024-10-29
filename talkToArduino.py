@@ -38,7 +38,6 @@ class ArdiunoTalk():
         data = self.arduino.readline()
         return data
     def calculateLength(self, angle1, angle2):
-        #constants
         A = 1
         B = 1
         actuator1 = A*math.tan(angle1.value()*math.pi/180)+B*math.tan(angle2.value()*math.pi/180)
@@ -48,16 +47,8 @@ class ArdiunoTalk():
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-
-        # Calculate actuator lengths first
         actuator1, actuator2 = self.calculateLength(angle1, angle2)
-
-        # Create a single command string with all values
-        # Format could be: "A1,2,3" where A indicates 'all angles' command
-        # followed by the values separated by commas
         command = f"A{actuator1},{actuator2},{angle3.value()}"
-
-        # Send the command to Arduino
         if self.arduino:
             print(self.write_read(command))
         else:
