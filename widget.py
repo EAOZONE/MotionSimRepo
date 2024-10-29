@@ -1,13 +1,8 @@
 from PySide6.QtCore import QRect, Qt
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QCheckBox, QScrollArea, QSlider, QGraphicsView, QVBoxLayout, QGraphicsScene
 from PySide6.QtGui import QPixmap, QKeyEvent
-
-import time
 import sys
-import math
-
 from talkToArduino import ArdiunoTalk
-
 
 class widget(QWidget):
     def __init__(self):

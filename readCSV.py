@@ -6,7 +6,3 @@ def saveFileAsArr(fileName):
         arr.append((int(file.loc[i][0]), int(file.loc[i][1]), int(file.loc[i][2])))
     print(arr)
     return arr
-
-
-
-saveFileAsArr("test.csv")

@@ -1,13 +1,10 @@
 import math
 import platform
 import time
-
 import serial
 import serial.tools.list_ports
 from serial.serialutil import SerialException
-
 from readCSV import saveFileAsArr
-
 
 class ArdiunoTalk():
     def __init__(self):
