@@ -1,38 +1,40 @@
 #include <Servo.h>
-String x;
-int x_1;
-String actuator;
-int actuator_num;
+
+String inputString;
 Servo actuator_1;
 Servo actuator_2;
 Servo actuator_3;
-int val;
+
 void setup() {
-	Serial.begin(115200);
-	Serial.setTimeout(1);
+  Serial.begin(115200);
+  Serial.setTimeout(1);
   actuator_1.attach(9);
   actuator_2.attach(10);
   actuator_3.attach(11);
 }
+
 void loop() {
-	while (!Serial.available());
-	x = Serial.readString();
-  actuator = x[0];
-  x.remove(0, 1);
-  actuator_num = actuator.toInt();
-  Serial.print(actuator);
-  x_1 = x.toInt();
-  val = x_1;
-  if(actuator == "1")
-  {
-    actuator_1.write(val);
-  }
-  else if(actuator == "2")
-  {
-    actuator_2.write(val);
-  }
-  else if(actuator_num == 3)
-  {
-    actuator_3.write(val);
+  while (!Serial.available());
+  inputString = Serial.readStringUntil('\n');
+
+  if (inputString.startsWith("A")) {
+    // All servos at once
+    inputString.remove(0, 1); // Remove 'A'
+    int firstComma = inputString.indexOf(',');
+    int secondComma = inputString.indexOf(',', firstComma + 1);
+
+    if (firstComma != -1 && secondComma != -1) {
+      int val1 = inputString.substring(0, firstComma).toInt();
+      int val2 = inputString.substring(firstComma + 1, secondComma).toInt();
+      int val3 = inputString.substring(secondComma + 1).toInt();
+
+      actuator_1.write(val1);
+      actuator_2.write(val2);
+      actuator_3.write(val3);
+
+      Serial.println("All actuators updated");
+    }
+  } else {
+        break;
   }
 }

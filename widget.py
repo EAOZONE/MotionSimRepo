@@ -1,14 +1,12 @@
 from PySide6.QtCore import QRect, Qt
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QCheckBox, QScrollArea, QSlider, QGraphicsView, QVBoxLayout, QGraphicsScene
 from PySide6.QtGui import QPixmap, QKeyEvent
-import serial
-import serial.tools.list_ports  # Import this module to list available ports
+
 import time
 import sys
-import platform
 import math
 
-from serial.serialutil import SerialException
+from talkToArduino import ArdiunoTalk
 
 
 class widget(QWidget):
@@ -18,32 +16,7 @@ class widget(QWidget):
         self.enabled = False
         super().__init__()
         self.setupUi()
-        self.arduino_port_name = None  # Store the name of the Arduino port
-        self.arduino = None  # The actual serial connection
-
-        self.arduino_port_name = self.detect_arduino_port()
-        if self.arduino_port_name:
-            try:
-                self.arduino = serial.Serial(port=self.arduino_port_name, baudrate=115200, timeout=.1)
-                print(f"Connected to Arduino on Port: {self.arduino_port_name}")
-            except SerialException as e:
-                print(f"Failed to connect to Arduino: {e}")
-                self.arduino = None
-        else:
-            print("No arduino port detected")
-
-
-    def detect_arduino_port(self):
-        system_platform = platform.system()
-        ports = list(serial.tools.list_ports.comports())
-        for port in ports:
-            if system_platform == "Windows" and "Arduino" in port.description:
-                return port.device
-            elif system_platform == "Darwin":
-                if port.device.startswith("/dev/cu.usbmodem"):
-                    return port.device
-        return None
-
+        self.arduinoTalker = ArdiunoTalk()
     def setupUi(self):
         self.setGeometry(QRect(0, 0, 800, 600))
         self.setWindowTitle("Widget")
@@ -102,13 +75,6 @@ class widget(QWidget):
         self.image.setScene(self.scene)
         self.setup_scrollbox()
 
-    def write_read(self, x):
-        self.arduino.write(bytes(str(x), 'utf-8'))
-        print(x)
-        time.sleep(0.05)
-        data = self.arduino.readline()
-        return data
-
     def setup_scrollbox(self):
         self.scrollBox = QScrollArea(self)
         self.scrollBox.setGeometry(QRect(530, 210, 171, 191))
@@ -138,26 +104,23 @@ class widget(QWidget):
         self.angle2.setValue(0)
         self.angle3.setValue(0)
     def on_dial_rotate_actuator1(self):
-        self.calculateLength()
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-        print(self.write_read("1"+str(self.actuator1)))
-        print(self.write_read("2" + str(self.actuator2)))
+        self.arduinoTalker.send_all_angles(self.angle1, self.angle2, self.angle3)
         print(f"Dial rotated to: {self.angle1.value()}")
     def on_dial_rotate_actuator2(self):
-        self.calculateLength()
+
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-        print(self.write_read("1" + str(self.actuator1)))
-        print(self.write_read("2"+str(self.actuator2)))
+        self.arduinoTalker.send_all_angles(self.angle1, self.angle2, self.angle3)
         print(f"Dial rotated to: {self.angle2.value()}")
     def on_dial_rotate_actuator3(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-        print(self.write_read("3"+str(self.angle3.value())))
+        self.arduinoTalker.send_all_angles(self.angle1, self.angle2, self.angle3)
         print(f"Dial rotated to: {self.angle3.value()}")
     def toggle_enabled(self):
         self.enabled = not self.enabled
@@ -168,12 +131,6 @@ class widget(QWidget):
                 self.estop_pressed()  # Call the E-Stop function
             else:
                 super().keyPressEvent(event)
-    def calculateLength(self):
-        #constants
-        A = 1
-        B = 1
-        self.actuator1 = A*math.tan(self.angle1.value()*math.pi/180)+B*math.tan(self.angle2.value()*math.pi/180)
-        self.actuator2 = A*math.tan(self.angle1.value()*math.pi/180)-B*math.tan(self.angle2.value()*math.pi/180)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
