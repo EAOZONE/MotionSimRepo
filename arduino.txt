@@ -4,7 +4,9 @@ String inputString;
 Servo actuator_1;
 Servo actuator_2;
 Servo actuator_3;
-
+int prev1;
+int prev2;
+int prev3;
 void setup() {
   Serial.begin(115200);
   Serial.setTimeout(1);
@@ -23,18 +25,19 @@ void loop() {
     int firstComma = inputString.indexOf(',');
     int secondComma = inputString.indexOf(',', firstComma + 1);
 
-    if (firstComma != -1 && secondComma != -1) {
-      int val1 = inputString.substring(0, firstComma).toInt();
-      int val2 = inputString.substring(firstComma + 1, secondComma).toInt();
-      int val3 = inputString.substring(secondComma + 1).toInt();
 
-      actuator_1.write(val1);
-      actuator_2.write(val2);
-      actuator_3.write(val3);
+    int val1 = inputString.substring(0, firstComma).toInt();
+    int val2 = inputString.substring(firstComma + 1, secondComma).toInt();
+    int val3 = inputString.substring(secondComma + 1).toInt();
 
-      Serial.println("All actuators updated");
-    }
-  } else {
-        break;
+    actuator_1.write(val1);
+    actuator_2.write(val2);
+    actuator_3.write(val3);
+
+
+
+    Serial.println("All actuators updated");
+
   }
+
 }

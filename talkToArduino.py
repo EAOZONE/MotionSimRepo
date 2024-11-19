@@ -10,7 +10,7 @@ class ArdiunoTalk():
     def __init__(self):
         self.arduino_port_name = None  # Store the name of the Arduino port
         self.arduino = None  # The actual serial connection
-
+        self.enabled = False
         self.arduino_port_name = self.detect_arduino_port()
         if self.arduino_port_name:
             try:
@@ -40,8 +40,8 @@ class ArdiunoTalk():
     def calculateLength(self, angle1, angle2):
         A = 1
         B = 1
-        actuator1 = A*math.tan(angle1.value()*math.pi/180)+B*math.tan(angle2.value()*math.pi/180)
-        actuator2 = A*math.tan(angle1.value()*math.pi/180)-B*math.tan(angle2.value()*math.pi/180)
+        actuator1 = 180*(A*math.tan(angle1.value()*math.pi/180)+B*math.tan(angle2.value()*math.pi/180))
+        actuator2 = 180*(A*math.tan(angle1.value()*math.pi/180)-B*math.tan(angle2.value()*math.pi/180))
         return actuator1, actuator2
     def send_all_angles(self, angle1, angle2, angle3):
         if not self.enabled:
@@ -57,3 +57,5 @@ class ArdiunoTalk():
         arr = saveFileAsArr(fileName)
         for i in range(len(arr)):
             self.send_all_angles(arr[i][0], arr[i][1], arr[i][2])
+    def setEnable(self, enable):
+        self.enabled = enable

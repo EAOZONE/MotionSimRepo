@@ -119,6 +119,7 @@ class widget(QWidget):
         print(f"Dial rotated to: {self.angle3.value()}")
     def toggle_enabled(self):
         self.enabled = not self.enabled
+        self.arduinoTalker.setEnable(self.enabled)
         print(self.enabled)
     def keyPressEvent(self, event: QKeyEvent):
             # Check if spacebar is pressed
