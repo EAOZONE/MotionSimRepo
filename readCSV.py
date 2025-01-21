@@ -4,5 +4,4 @@ def saveFileAsArr(fileName):
     file = pd.read_csv(fileName)
     for i in range(len(file)):
         arr.append((int(file.loc[i][0]), int(file.loc[i][1]), int(file.loc[i][2])))
-    print(arr)
     return arr

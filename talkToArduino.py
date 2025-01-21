@@ -3,6 +3,7 @@ import platform
 import time
 import serial
 import serial.tools.list_ports
+from PySide6.QtGui import QKeyEvent, Qt
 from serial.serialutil import SerialException
 from readCSV import saveFileAsArr
 
@@ -40,22 +41,18 @@ class ArdiunoTalk():
     def calculateLength(self, angle1, angle2):
         A = 1
         B = 1
-        actuator1 = 180*(A*math.tan(angle1.value()*math.pi/180)+B*math.tan(angle2.value()*math.pi/180))
-        actuator2 = 180*(A*math.tan(angle1.value()*math.pi/180)-B*math.tan(angle2.value()*math.pi/180))
+        actuator1 = 180*(A*math.tan(angle1*math.pi/180)+B*math.tan(angle2*math.pi/180))
+        actuator2 = 180*(A*math.tan(angle1*math.pi/180)-B*math.tan(angle2*math.pi/180))
         return actuator1, actuator2
     def send_all_angles(self, angle1, angle2, angle3):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
         actuator1, actuator2 = self.calculateLength(angle1, angle2)
-        command = f"A{actuator1},{actuator2},{angle3.value()}"
+        command = f"A{actuator1},{actuator2},{angle3}"
         if self.arduino:
             print(self.write_read(command))
         else:
             print("Arduino not connected")
-    def runThroughFile(self, fileName):
-        arr = saveFileAsArr(fileName)
-        for i in range(len(arr)):
-            self.send_all_angles(arr[i][0], arr[i][1], arr[i][2])
     def setEnable(self, enable):
         self.enabled = enable

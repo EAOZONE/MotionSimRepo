@@ -1,7 +1,11 @@
+import time
+
 from PySide6.QtCore import QRect, Qt
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QCheckBox, QScrollArea, QSlider, QGraphicsView, QVBoxLayout, QGraphicsScene
 from PySide6.QtGui import QPixmap, QKeyEvent
 import sys
+
+from readCSV import saveFileAsArr
 from talkToArduino import ArdiunoTalk
 
 class widget(QWidget):
@@ -90,6 +94,10 @@ class widget(QWidget):
             self.enableAll.setChecked(False)
     def on_name_clicked(self, name):
         print(f"{name} clicked")
+        arr = saveFileAsArr("test.csv")
+        for i in range(len(arr)):
+            self.arduinoTalker.send_all_angles(arr[i][0], arr[i][1], arr[i][2])
+            time.sleep(2)
     def home_pressed(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
@@ -102,20 +110,19 @@ class widget(QWidget):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-        self.arduinoTalker.send_all_angles(self.angle1, self.angle2, self.angle3)
+        self.arduinoTalker.send_all_angles(self.angle1.value(), self.angle2.value(), self.angle3.value())
         print(f"Dial rotated to: {self.angle1.value()}")
     def on_dial_rotate_actuator2(self):
-
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-        self.arduinoTalker.send_all_angles(self.angle1, self.angle2, self.angle3)
+        self.arduinoTalker.send_all_angles(self.angle1.value(), self.angle2.value(), self.angle3.value())
         print(f"Dial rotated to: {self.angle2.value()}")
     def on_dial_rotate_actuator3(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-        self.arduinoTalker.send_all_angles(self.angle1, self.angle2, self.angle3)
+        self.arduinoTalker.send_all_angles(self.angle1.value(), self.angle2.value(), self.angle3.value())
         print(f"Dial rotated to: {self.angle3.value()}")
     def toggle_enabled(self):
         self.enabled = not self.enabled
