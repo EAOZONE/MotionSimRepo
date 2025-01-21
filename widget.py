@@ -1,5 +1,5 @@
 import time
-
+import threading
 from PySide6.QtCore import QRect, Qt
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QCheckBox, QScrollArea, QSlider, QGraphicsView, QVBoxLayout, QGraphicsScene
 from PySide6.QtGui import QPixmap, QKeyEvent
@@ -8,14 +8,18 @@ import sys
 from readCSV import saveFileAsArr
 from talkToArduino import ArdiunoTalk
 
-class widget(QWidget):
+
+class Widget(QWidget):
+
     def __init__(self):
+        self.stop_loop = None
         self.actuator1 = 0
         self.actuator2 = 0
         self.enabled = False
         super().__init__()
         self.setupUi()
         self.arduinoTalker = ArdiunoTalk()
+
     def setupUi(self):
         self.setGeometry(QRect(0, 0, 800, 600))
         self.setWindowTitle("Widget")
@@ -27,6 +31,7 @@ class widget(QWidget):
         self.eStop.setText("E-Stop")
         self.eStop.setStyleSheet("background-color: red; color: white;")
         self.eStop.clicked.connect(self.estop_pressed)
+
 
         self.home = QPushButton(self)
         self.home.setGeometry(QRect(100, 340, 171, 71))
@@ -88,16 +93,32 @@ class widget(QWidget):
                 button.clicked.connect(lambda checked, n=name: self.on_name_clicked(n))  # Connect button click to function
                 self.scrollLayout.addWidget(button)
         self.scrollBox.setWidget(self.scrollWidget)
+
     def estop_pressed(self):
+        t = threading.Thread(target=self.stop_execution)
+        t.start()
+
+    def stop_execution(self):
         print('Stop')
+        self.stop_loop = True
         if self.enabled:
             self.enableAll.setChecked(False)
+
     def on_name_clicked(self, name):
         print(f"{name} clicked")
+        if not self.enabled:
+            print("Action blocked: System is not enabled.")
+            return
         arr = saveFileAsArr("test.csv")
         for i in range(len(arr)):
+            if self.stop_loop:
+                self.stop_loop = False
+                break
             self.arduinoTalker.send_all_angles(arr[i][0], arr[i][1], arr[i][2])
+            print(f"Dial rotated to: {arr[i][0]}, {arr[i][1]}, {arr[i][2]}")
+            QApplication.processEvents()
             time.sleep(2)
+
     def home_pressed(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
@@ -106,28 +127,33 @@ class widget(QWidget):
         self.angle1.setValue(0)
         self.angle2.setValue(0)
         self.angle3.setValue(0)
+
     def on_dial_rotate_actuator1(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
         self.arduinoTalker.send_all_angles(self.angle1.value(), self.angle2.value(), self.angle3.value())
         print(f"Dial rotated to: {self.angle1.value()}")
+
     def on_dial_rotate_actuator2(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
         self.arduinoTalker.send_all_angles(self.angle1.value(), self.angle2.value(), self.angle3.value())
         print(f"Dial rotated to: {self.angle2.value()}")
+
     def on_dial_rotate_actuator3(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
         self.arduinoTalker.send_all_angles(self.angle1.value(), self.angle2.value(), self.angle3.value())
         print(f"Dial rotated to: {self.angle3.value()}")
+
     def toggle_enabled(self):
         self.enabled = not self.enabled
         self.arduinoTalker.setEnable(self.enabled)
         print(self.enabled)
+
     def keyPressEvent(self, event: QKeyEvent):
             # Check if spacebar is pressed
             if event.key() == Qt.Key_Space:
@@ -137,6 +163,6 @@ class widget(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    widget = widget()
+    widget = Widget()
     widget.show()
     sys.exit(app.exec_())
