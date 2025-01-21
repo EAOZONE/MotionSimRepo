@@ -4,10 +4,8 @@ from PySide6.QtCore import QRect, Qt
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QCheckBox, QScrollArea, QSlider, QGraphicsView, QVBoxLayout, QGraphicsScene
 from PySide6.QtGui import QPixmap, QKeyEvent
 import sys
-
 from readCSV import saveFileAsArr
 from talkToArduino import ArdiunoTalk
-
 
 class Widget(QWidget):
 
@@ -117,7 +115,7 @@ class Widget(QWidget):
             self.arduinoTalker.send_all_angles(arr[i][0], arr[i][1], arr[i][2])
             print(f"Dial rotated to: {arr[i][0]}, {arr[i][1]}, {arr[i][2]}")
             QApplication.processEvents()
-            time.sleep(2)
+            time.sleep(1)
 
     def home_pressed(self):
         if not self.enabled:
