@@ -85,11 +85,12 @@ class Widget(QWidget):
 
         self.scrollWidget = QWidget()
         self.scrollLayout = QVBoxLayout(self.scrollWidget)
-
+        self.name_buttons = []
         for name in ['Name1', 'Name2', 'Name3', 'Name4']:  # Replace with your names
                 button = QPushButton(name)
                 button.clicked.connect(lambda checked, n=name: self.on_name_clicked(n))  # Connect button click to function
                 self.scrollLayout.addWidget(button)
+                self.name_buttons.append(button)
         self.scrollBox.setWidget(self.scrollWidget)
 
     def estop_pressed(self):
@@ -108,6 +109,7 @@ class Widget(QWidget):
             print("Action blocked: System is not enabled.")
             return
         arr = saveFileAsArr("test.csv")
+        self.disable_name_buttons()
         for i in range(len(arr)):
             if self.stop_loop:
                 self.stop_loop = False
@@ -115,7 +117,17 @@ class Widget(QWidget):
             self.arduinoTalker.send_all_angles(arr[i][0], arr[i][1], arr[i][2])
             print(f"Dial rotated to: {arr[i][0]}, {arr[i][1]}, {arr[i][2]}")
             QApplication.processEvents()
-            time.sleep(1)
+            time.sleep(0.5)
+        self.enable_name_buttons()
+    def disable_name_buttons(self):
+        for button in self.name_buttons:
+            button.setEnabled(False)
+        print("Name buttons disabled")
+
+    def enable_name_buttons(self):
+        for button in self.name_buttons:
+            button.setEnabled(True)
+        print("Name buttons enabled")
 
     def home_pressed(self):
         if not self.enabled:
