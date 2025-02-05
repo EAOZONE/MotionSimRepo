@@ -9,6 +9,7 @@ from talkToArduino import ArdiunoTalk
 
 class Widget(QWidget):
 
+    #Defining widget
     def __init__(self):
         self.stop_loop = None
         self.actuator1 = 0
@@ -18,6 +19,8 @@ class Widget(QWidget):
         self.setupUi()
         self.arduinoTalker = ArdiunoTalk()
 
+
+    #Setup UI
     def setupUi(self):
         self.setGeometry(QRect(0, 0, 800, 600))
         self.setWindowTitle("Widget")
@@ -77,6 +80,7 @@ class Widget(QWidget):
         self.image.setScene(self.scene)
         self.setup_scrollbox()
 
+    #Set up presets
     def setup_scrollbox(self):
         self.scrollBox = QScrollArea(self)
         self.scrollBox.setGeometry(QRect(530, 210, 171, 191))
@@ -93,16 +97,18 @@ class Widget(QWidget):
                 self.name_buttons.append(button)
         self.scrollBox.setWidget(self.scrollWidget)
 
+    # estop button
     def estop_pressed(self):
         t = threading.Thread(target=self.stop_execution)
         t.start()
 
+    # estop method
     def stop_execution(self):
         print('Stop')
         self.stop_loop = True
         if self.enabled:
             self.enableAll.setChecked(False)
-
+    # preset buttons
     def on_name_clicked(self, name):
         print(f"{name} clicked")
         if not self.enabled:
@@ -119,16 +125,19 @@ class Widget(QWidget):
             QApplication.processEvents()
             time.sleep(0.5)
         self.enable_name_buttons()
+
+    # disabling name buttons
     def disable_name_buttons(self):
         for button in self.name_buttons:
             button.setEnabled(False)
         print("Name buttons disabled")
-
+    # enabling name buttons
     def enable_name_buttons(self):
         for button in self.name_buttons:
             button.setEnabled(True)
         print("Name buttons enabled")
 
+    # Sets to origin
     def home_pressed(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
@@ -137,7 +146,7 @@ class Widget(QWidget):
         self.angle1.setValue(0)
         self.angle2.setValue(0)
         self.angle3.setValue(0)
-
+    # rotating actuator 1
     def on_dial_rotate_actuator1(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
@@ -145,6 +154,7 @@ class Widget(QWidget):
         self.arduinoTalker.send_all_angles(self.angle1.value(), self.angle2.value(), self.angle3.value())
         print(f"Dial rotated to: {self.angle1.value()}")
 
+    # rotating actuator 2
     def on_dial_rotate_actuator2(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
@@ -152,6 +162,7 @@ class Widget(QWidget):
         self.arduinoTalker.send_all_angles(self.angle1.value(), self.angle2.value(), self.angle3.value())
         print(f"Dial rotated to: {self.angle2.value()}")
 
+    # rotating actuator 3
     def on_dial_rotate_actuator3(self):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
