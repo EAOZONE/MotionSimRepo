@@ -62,8 +62,8 @@ class Widget(QWidget):
         self.angle3.setGeometry(QRect(220, 280, 64, 50))
         self.angle3.setObjectName("horizontalSlider")
         self.angle3.valueChanged.connect(self.on_dial_rotate_actuator3)
-        self.angle3.setMinimum(-45)
-        self.angle3.setMaximum(45)
+        self.angle3.setMinimum(0)
+        self.angle3.setMaximum(180)
 
         self.image = QGraphicsView(self)
         self.image.setGeometry(QRect(300,210,192,192))

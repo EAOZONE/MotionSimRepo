@@ -30,12 +30,6 @@ class ArdiunoTalk():
                 if port.device.startswith("/dev/cu.usbmodem"):
                     return port.device
         return None
-    def write_read(self, x):
-        self.arduino.write(bytes(str(x), 'utf-8'))
-        print(x)
-        time.sleep(0.05)
-        data = self.arduino.readline()
-        return data
     def calculateLength(self, angle1, angle2):
         A = 1
         B = 1
@@ -47,9 +41,12 @@ class ArdiunoTalk():
             print("Action blocked: System is not enabled.")
             return
         actuator1, actuator2 = self.calculateLength(angle1, angle2)
-        command = f"A{actuator1},{actuator2},{angle3}"
+        command = f"{int(actuator1)},{int(actuator2)},{angle3}"
+        print(command)
         if self.arduino:
-            print(self.write_read(command))
+            self.arduino.flush()
+            self.arduino.write(str(command).encode())
+            print(self.arduino.readline())
         else:
             print("Arduino not connected")
     def setEnable(self, enable):

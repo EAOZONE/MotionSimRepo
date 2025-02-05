@@ -7,21 +7,23 @@ Servo actuator_3;
 int prev1;
 int prev2;
 int prev3;
+int curr_angle;
 void setup() {
   Serial.begin(115200);
-  Serial.setTimeout(1);
+  Serial.setTimeout(50);
   actuator_1.attach(9);
   actuator_2.attach(10);
-  actuator_3.attach(11);
+  actuator_3.attach(7);
 }
 
 void loop() {
   while (!Serial.available());
   inputString = Serial.readStringUntil('\n');
-
-  if (inputString.startsWith("A")) {
-    // All servos at once
-    inputString.remove(0, 1); // Remove 'A'
+  // Serial.println(inputString);
+  // if (inputString.startsWith("A")) {
+  //   // All servos at once
+  //   inputString.remove(0, 1);
+     // Remove 'A'
     int firstComma = inputString.indexOf(',');
     int secondComma = inputString.indexOf(',', firstComma + 1);
 
@@ -33,11 +35,13 @@ void loop() {
     actuator_1.write(val1);
     actuator_2.write(val2);
     actuator_3.write(val3);
+    Serial.println(inputString);
+    // Serial.println(actuator_3.read());
 
 
 
-    Serial.println("All actuators updated");
+    // Serial.println("All actuators updated");
 
-  }
-
+  // }
+// Serial.println(val3);
 }
