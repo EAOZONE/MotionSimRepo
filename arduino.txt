@@ -19,11 +19,6 @@ void setup() {
 void loop() {
   while (!Serial.available());
   inputString = Serial.readStringUntil('\n');
-  // Serial.println(inputString);
-  // if (inputString.startsWith("A")) {
-  //   // All servos at once
-  //   inputString.remove(0, 1);
-     // Remove 'A'
     int firstComma = inputString.indexOf(',');
     int secondComma = inputString.indexOf(',', firstComma + 1);
 
@@ -36,12 +31,4 @@ void loop() {
     actuator_2.write(val2);
     actuator_3.write(val3);
     Serial.println(inputString);
-    // Serial.println(actuator_3.read());
-
-
-
-    // Serial.println("All actuators updated");
-
-  // }
-// Serial.println(val3);
 }
