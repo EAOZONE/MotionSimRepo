@@ -1,34 +1,71 @@
-#include <Servo.h>
+// Define control pins
+const int IN3 = 7;  // Direction control 1
+const int IN4 = 8;  // Direction control 2
+const int ENB = 9;  // Speed control (PWM)
 
+// Adjustable extension/retraction time (milliseconds)
+const int extendTime = 5000;  // Adjust this value to control extension length
+const int retractTime = 5000; // Adjust this for how much it retracts
 String inputString;
-Servo actuator_1;
-Servo actuator_2;
-Servo actuator_3;
+int firstComma;
+int secondComma;
 int prev1;
-int prev2;
-int prev3;
-int curr_angle;
+int change;
 void setup() {
-  Serial.begin(115200);
-  Serial.setTimeout(50);
-  actuator_1.attach(9);
-  actuator_2.attach(10);
-  actuator_3.attach(7);
+    pinMode(IN3, OUTPUT);
+    pinMode(IN4, OUTPUT);
+    pinMode(ENB, OUTPUT);
+    Serial.begin(115200);
+    Serial.setTimeout(50);
+    prev1 = 0;
+    change = 0;
+
+    stopActuator(); // Start with the actuator stopped
 }
 
 void loop() {
-  while (!Serial.available());
-  inputString = Serial.readStringUntil('\n');
-    int firstComma = inputString.indexOf(',');
-    int secondComma = inputString.indexOf(',', firstComma + 1);
-
+    while(!Serial.available());
+    inputString = Serial.readStringUntil('\n');
+    firstComma = inputString.indexOf(',');
+    secondComma = inputString.indexOf(',', firstComma + 1);
 
     int val1 = inputString.substring(0, firstComma).toInt();
     int val2 = inputString.substring(firstComma + 1, secondComma).toInt();
     int val3 = inputString.substring(secondComma + 1).toInt();
+    change = val1-prev1;
+    int speed = 200;
+    Serial.print("Extending at speed: ");
+    Serial.println(speed);
+    if(change > 0){
+    extendActuator(speed);  // Fully extend at max speed
+    }
+    else{
+      retractActuator(speed);
+    }
+    delay(min(20*abs(change), 5000));     // Run for the set duration
 
-    actuator_1.write(val1);
-    actuator_2.write(val2);
-    actuator_3.write(val3);
-    Serial.println(inputString);
+    stopActuator();
+    delay(1000);           // Pause before reversing
+    prev1 = val1;
+}
+
+// Function to extend actuator
+void extendActuator(int speed) {
+    analogWrite(ENB, speed); // Set speed (0-255)
+    digitalWrite(IN3, HIGH);
+    digitalWrite(IN4, LOW);
+}
+
+// Function to retract actuator
+void retractActuator(int speed) {
+    analogWrite(ENB, speed);
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, HIGH);
+}
+
+// Function to stop actuator
+void stopActuator() {
+    analogWrite(ENB, 0); // Cut power
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, LOW);
 }
