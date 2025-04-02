@@ -38,7 +38,7 @@ class Widget(QWidget):
         self.image.setScene(self.scene)
         self.scene.setSceneRect(0, 0, 800, 600)
 
-        pixmap = QPixmap("TPED-logo-cropped.png").scaled(300, 300)
+        pixmap = QPixmap("../images/TPED-logo-cropped.png").scaled(300, 300)
         item = self.scene.addPixmap(pixmap)
         item.setPos(-50, -60)
 
@@ -53,7 +53,7 @@ class Widget(QWidget):
 
         stylesheet = """
         QWidget {
-            background-image: url('background - resized.png');
+            background-image: url('../images/background - resized.png');
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -103,7 +103,7 @@ class Widget(QWidget):
 
         QSlider::handle:horizontal {
             background: transparent;
-            image: url('Gear Image.PNG');  
+            image: url('../images/Gear Image.PNG');  
             width: 32px;   
             height: 32px;
             margin: -12px 0; 
@@ -131,7 +131,7 @@ class Widget(QWidget):
         self.home = QPushButton(self)
         self.home.setGeometry(QRect(550, 190, 175, 75))
         self.home.setObjectName("homeButton")
-        self.home.setText("Return to Home")
+        self.home.setText("Reset Actuator Angles")
         self.home.clicked.connect(self.home_pressed)
 
         self.enableAll = QCheckBox(self)

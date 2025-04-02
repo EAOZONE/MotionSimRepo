@@ -15,5 +15,5 @@ Once enabled by checking the `Enable All` checkbox on the UI, you can then inter
 - The three dials to manually adjust angles.
 - A list of predefined named buttons that represent specific sequences of angles, which are read from a CSV file.
 - An `E-Stop` button can be used to discontinue execution of any ongoing command.
-![img.png](img.png)
+![img.png](images/GUI-img.png)
 This is a very flexible codebase and can be edited according to your individual needs. For further queries & understanding about the code, kindly delve into the files.
