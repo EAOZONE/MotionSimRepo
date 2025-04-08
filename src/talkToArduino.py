@@ -10,10 +10,10 @@ class ArdiunoTalk():
         self.arduino_port_name = None  # Store the name of the Arduino port
         self.arduino = None  # The actual serial connection
         self.enabled = False
-        self.arduino_port_name = self.detect_arduino_port()
+        self.arduino_port_name = "COM6"
         if self.arduino_port_name:
             try:
-                self.arduino = serial.Serial(port=self.arduino_port_name, baudrate=115200, timeout=.1)
+                self.arduino = serial.Serial(port=self.arduino_port_name, timeout=1)
                 print(f"Connected to Arduino on Port: {self.arduino_port_name}")
             except SerialException as e:
                 print(f"Failed to connect to Arduino: {e}")
