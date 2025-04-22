@@ -1,0 +1,67 @@
+// Motor control pins
+const int enPin  = 8;   // MegaMoto ENABLE pin
+const int pwmA   = 9;   // MegaMoto PWMA (forward / extend)
+const int pwmB   = 10;  // MegaMoto PWMB (reverse / retract)
+
+// Hall effect sensor pin
+const int hallPin = 2;  // Must be an interrupt-capable pin on your Arduino
+
+// Timing and speed parameters
+const int extendTime = 5000;  // milliseconds
+const int retractTime = 5000;
+const int speed = 200;        // PWM duty cycle (0–255)
+
+// Pulse count variable
+volatile unsigned long pulseCount = 0;
+
+void setup() {
+  // Initialize motor control pins
+  pinMode(enPin, OUTPUT);
+  pinMode(pwmA, OUTPUT);
+  pinMode(pwmB, OUTPUT);
+  digitalWrite(enPin, HIGH); // Enable motor driver
+
+  // Initialize hall effect sensor pin
+  pinMode(hallPin, INPUT_PULLUP); // Use internal pull-up resistor
+  attachInterrupt(digitalPinToInterrupt(hallPin), countPulse, RISING); // Trigger on rising edge
+
+  // Initialize serial communication
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Reset pulse count
+  pulseCount = 0;
+
+  // Retract actuator
+  analogWrite(pwmA, 0);
+  analogWrite(pwmB, speed);
+  delay(retractTime);
+  analogWrite(pwmB, 0); // Stop motor
+
+  // Output pulse count after retraction
+  Serial.print("Retract pulses: ");
+  Serial.println(pulseCount);
+
+  delay(1000); // Pause before next movement
+
+  // Reset pulse count
+  pulseCount = 0;
+
+  // Extend actuator
+  analogWrite(pwmA, speed);
+  analogWrite(pwmB, 0);
+  delay(extendTime);
+  analogWrite(pwmA, 0); // Stop motor
+
+  // Output pulse count after extension
+  Serial.print("Extend pulses: ");
+  Serial.println(pulseCount);
+
+  delay(1000); // Pause before next cycle
+}
+
+// Interrupt Service Routine (ISR) for counting pulses
+void countPulse() {
+  pulseCount++;
+}
