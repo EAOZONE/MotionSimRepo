@@ -31,10 +31,18 @@ class ArdiunoTalk():
                     return port.device
         return None
     def calculateLength(self, angle1, angle2):
-        A = 0.1
-        B = 0.1
+        A = 0.02708333333*2
+        B = 0.02708333333*2
         actuator1 = 180*(A*math.tan(angle1*math.pi/180)+B*math.tan(angle2*math.pi/180))
+        if actuator1 > 0:
+            actuator1 = min(actuator1, 9)
+        else:
+            actuator1 = max(actuator1, -9)
         actuator2 = 180*(A*math.tan(angle1*math.pi/180)-B*math.tan(angle2*math.pi/180))
+        if actuator2 > 0:
+            actuator2 = min(actuator2, 9)
+        else:
+            actuator2 = max(actuator2, -9)
         return actuator1, actuator2
     def send_all_angles(self, angle1, angle2, angle3):
         # if not self.enabled:

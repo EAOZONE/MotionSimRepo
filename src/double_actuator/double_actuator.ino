@@ -6,8 +6,8 @@ const float pulsesPerCmBackwards = 229.16666625;
 const float pulsesPerCm2 = 111.67 * 2.0;   // Actuator 2
 
 // Define your half‐stroke distances (in cm)
-const float midDist1 = 9.5;  // ← half‐travel for A1
-const float midDist2 =  9.5;  // ← half‐travel for A2
+const float midDist1 = 10.125;  // ← half‐travel for A1
+const float midDist2 =  10.125;  // ← half‐travel for A2
 
 // Pin definitions
 const int en1Pin   = 12;
@@ -49,13 +49,24 @@ void moveRelative(float d1, float d2) {
     pulseCount1 = 0;
     pulseCount2 = 0;
   interrupts();
+  // Figure out how “far” each is moving
+  float absD1 = abs(d1), absD2 = abs(d2);
+  float maxDist = max(absD1, absD2);
+
+  // Scale each PWM so the longest move uses your full 'speed'
+  int speed1 = (maxDist > 0)
+    ? int(speed * (absD1 / maxDist))
+    : 0;
+  int speed2 = (maxDist > 0)
+    ? int(speed * (absD2 / maxDist))
+    : 0;
 
   // set directions
-  if (d1 >= 0) { analogWrite(pwm1A, speed);  analogWrite(pwm1B, 0); }
-  else         { analogWrite(pwm1A, 0);      analogWrite(pwm1B, speed); }
+  if (d1 >= 0) { analogWrite(pwm1A, speed1);  analogWrite(pwm1B, 0); }
+  else         { analogWrite(pwm1A, 0);      analogWrite(pwm1B, speed1); }
 
-  if (d2 >= 0) { analogWrite(pwm2A, speed);  analogWrite(pwm2B, 0); }
-  else         { analogWrite(pwm2A, 0);      analogWrite(pwm2B, speed); }
+  if (d2 >= 0) { analogWrite(pwm2A, speed2);  analogWrite(pwm2B, 0); }
+  else         { analogWrite(pwm2A, 0);      analogWrite(pwm2B, speed2); }
 
   // wait until both reach targets
   while (pulseCount1 < target1 || pulseCount2 < target2) {
