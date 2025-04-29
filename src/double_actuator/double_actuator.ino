@@ -34,6 +34,12 @@ void countPulse1() { pulseCount1++; }
 void countPulse2() { pulseCount2++; }
 
 // Move each actuator by a signed distance (cm) simultaneously
+
+void resetToZero(){
+analogWrite(pwm1A, 0);      analogWrite(pwm1B, 200);
+analogWrite(pwm2A, 0);      analogWrite(pwm2B, 200);
+wait(20000);
+}
 void moveRelative(float d1, float d2) {
   unsigned long target1;
   if(d1 < 0){
@@ -105,12 +111,8 @@ void setup() {
   while (!Serial) { }
 
   // go to midpoint once
-  Serial.print(F("Homing to midpoint: "));
-    Serial.print(midDist1); Serial.print(F(" cm, "));
-    Serial.println(midDist2);
+  resetToZero();
   moveRelative(midDist1, midDist2);
-
-  Serial.println(F("=== Ready: send \"d1,d2\" (cm)—pos→extend, neg→retract simultaneously ==="));
 }
 void loop() {
   if (!Serial.available()) return;
