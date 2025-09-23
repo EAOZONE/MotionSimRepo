@@ -15,9 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QFrame, QGraphicsView,
-    QLabel, QPushButton, QScrollArea, QSizePolicy,
-    QSlider, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QDial, QFrame,
+    QGraphicsView, QLabel, QPushButton, QScrollArea,
+    QSizePolicy, QSlider, QVBoxLayout, QWidget)
 
 class Ui_Widget(object):
     def setupUi(self, Widget):
@@ -38,7 +38,7 @@ class Ui_Widget(object):
         self.labelSequences.setGeometry(QRect(300, 190, 200, 24))
         self.labelAct1 = QLabel(Widget)
         self.labelAct1.setObjectName(u"labelAct1")
-        self.labelAct1.setGeometry(QRect(100, 230, 180, 18))
+        self.labelAct1.setGeometry(QRect(0, 250, 180, 18))
         self.labelAct2 = QLabel(Widget)
         self.labelAct2.setObjectName(u"labelAct2")
         self.labelAct2.setGeometry(QRect(100, 305, 180, 18))
@@ -50,13 +50,7 @@ class Ui_Widget(object):
         self.angle2.setOrientation(Qt.Orientation.Horizontal)
         self.labelAct3 = QLabel(Widget)
         self.labelAct3.setObjectName(u"labelAct3")
-        self.labelAct3.setGeometry(QRect(100, 380, 180, 18))
-        self.angle3 = QSlider(Widget)
-        self.angle3.setObjectName(u"angle3")
-        self.angle3.setGeometry(QRect(100, 400, 140, 50))
-        self.angle3.setMinimum(0)
-        self.angle3.setMaximum(180)
-        self.angle3.setOrientation(Qt.Orientation.Horizontal)
+        self.labelAct3.setGeometry(QRect(240, 430, 180, 18))
         self.scrollArea = QScrollArea(Widget)
         self.scrollArea.setObjectName(u"scrollArea")
         self.scrollArea.setGeometry(QRect(300, 230, 200, 200))
@@ -86,6 +80,10 @@ class Ui_Widget(object):
         self.angle1.setObjectName(u"angle1")
         self.angle1.setGeometry(QRect(40, 280, 18, 160))
         self.angle1.setOrientation(Qt.Orientation.Vertical)
+        self.angle3 = QDial(Widget)
+        self.angle3.setObjectName(u"angle3")
+        self.angle3.setGeometry(QRect(240, 450, 128, 128))
+        self.angle3.setMaximum(180)
 
         self.retranslateUi(Widget)
 

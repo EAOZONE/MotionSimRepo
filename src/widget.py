@@ -6,10 +6,10 @@ import threading
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QPixmap, QFont, QKeyEvent
+from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import (
     QApplication, QWidget, QPushButton, QCheckBox, QScrollArea, QSlider,
-    QGraphicsScene, QGraphicsTextItem, QLabel, QVBoxLayout
+    QGraphicsScene, QVBoxLayout, QDial
 )
 
 from ui_form import Ui_Widget  # generated from form.ui
@@ -37,8 +37,6 @@ def load_stylesheet(app: QApplication, qss_filename: str):
     qss = qss_path.read_text(encoding="utf-8")
     app.setStyleSheet(qss)
 
-
-
 class Widget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -63,7 +61,7 @@ class Widget(QWidget):
         self.enableAll: QCheckBox = self.findChild(QCheckBox, "checkBox")
         self.angle1: QSlider = self.findChild(QSlider, "angle1")
         self.angle2: QSlider = self.findChild(QSlider, "angle2")
-        self.angle3: QSlider = self.findChild(QSlider, "angle3")
+        self.angle3: QDial = self.findChild(QDial, "angle3")
         self.scrollArea: QScrollArea = self.findChild(QScrollArea, "scrollArea")
 
         # Signals

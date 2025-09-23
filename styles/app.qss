@@ -93,6 +93,43 @@ QSlider::add-page:vertical {
     background: #4f6cc2;
     border-radius: 4px;
 }
+/* Dial base = like the slider's groove/add-page combo */
+QDial {
+    background: #4f6cc2;           /* matches add-page */
+    border: 2px solid white;       /* matches groove border */
+    border-radius: 50%;            /* keep it circular */
+    padding: 4px;                  /* ~8px ring thickness (4px on each side) */
+}
+
+/* Filled arc = like the slider's sub-page */
+QDial::chunk {
+    background: #ffa500;           /* matches sub-page */
+    border-radius: 4px;            /* soft, similar to slider corners */
+}
+
+/* Handle = your gear image, sized and centered on the ring */
+QDial::handle {
+    background: transparent;
+    border: none;
+    width: 32px;
+    height: 32px;
+    margin: -16px;  /* centers on dial rim */
+}
+
+/* Optional: disabled state to match the scheme */
+QDial:disabled {
+    background: #788dce;           /* subdued add-page color */
+    border: 2px solid #dddddd;
+}
+
+QDial:disabled::chunk {
+    background: #ffc166;           /* subdued sub-page color */
+}
+
+QDial:disabled::handle {
+    image: url('../images/gear.png'); /* same image; Qt will gray it if using stylesheets + palette */
+    opacity: 0.6;                  /* Qt ignores opacity in some versions; safe to keep */
+}
 
 /* --- Scroll area (the orange frame) --- */
 QScrollArea#scrollArea {
