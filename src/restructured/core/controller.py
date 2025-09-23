@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import sys
 import struct
 import time
 from dataclasses import dataclass
@@ -14,6 +15,13 @@ try:  # optional dependency
     import hid  # type: ignore
 except Exception:  # pragma: no cover - keep UI responsive when missing
     hid = None  # type: ignore
+
+try:  # optional Windows dependency
+    from inputs import get_gamepad as _inputs_get_gamepad  # type: ignore
+    from inputs import UnpluggedError as _inputs_unplugged_error  # type: ignore
+except Exception:  # pragma: no cover - optional
+    _inputs_get_gamepad = None
+    _inputs_unplugged_error = Exception
 
 
 @dataclass(frozen=True)
@@ -94,6 +102,13 @@ def _apply_deadzone(value: float, dead: float) -> float:
     return max(-1.0, min(1.0, value))
 
 
+def _inputs_axis_to_float(val: int) -> float:
+    denom = 32767.0 if val >= 0 else 32768.0
+    if denom == 0:
+        return 0.0
+    return float(val) / denom
+
+
 class ControllerWorker(QObject):
     """Polls a HID game controller and emits motion updates."""
 
@@ -140,11 +155,96 @@ class ControllerWorker(QObject):
 
     # ===== lifecycle =====================================================
     def start(self) -> None:
+        self._running = True
+        if sys.platform.startswith("win") and _inputs_get_gamepad is not None:
+            self._inputs_loop()
+        else:
+            self._hid_loop()
+
+    def stop(self) -> None:
+        self._running = False
+
+    def set_enabled(self, on: bool) -> None:
+        self._enabled = bool(on)
+
+    def toggle_enabled(self) -> None:
+        self._enabled = not self._enabled
+
+    # ===== helpers =======================================================
+    def _inputs_loop(self) -> None:
+        last_emit = 0.0
+        self._set_connected(False)
+
+        while self._running:
+            try:
+                events = _inputs_get_gamepad()  # type: ignore[misc]
+            except _inputs_unplugged_error:
+                self._set_connected(False)
+                time.sleep(0.5)
+                continue
+            except Exception as exc:  # pragma: no cover - defensive
+                self.debugEvent.emit(f"inputs read failed: {exc}")
+                self._set_connected(False)
+                time.sleep(0.5)
+                continue
+
+            self._set_connected(True)
+
+            for ev in events:
+                code = getattr(ev, "code", None)
+                etype = getattr(ev, "ev_type", None)
+                state = getattr(ev, "state", None)
+                if code is None or etype is None or state is None:
+                    continue
+
+                if etype == "Sync":
+                    continue
+
+                if etype == "EV_ABS":
+                    if code == "ABS_X":
+                        self._lx = _apply_deadzone(_inputs_axis_to_float(state), self._dead)
+                    elif code == "ABS_Y":
+                        self._ly = _apply_deadzone(-_inputs_axis_to_float(state), self._dead)
+                    elif code == "ABS_RX":
+                        self._rx = _apply_deadzone(_inputs_axis_to_float(state), self._dead)
+                    elif code == "ABS_RY":
+                        self._ry = _apply_deadzone(-_inputs_axis_to_float(state), self._dead)
+                    elif code == "ABS_Z":
+                        self._lt = max(-1.0, min(1.0, (state / 255.0) * 2.0 - 1.0))
+                    elif code == "ABS_RZ":
+                        self._rt = max(-1.0, min(1.0, (state / 255.0) * 2.0 - 1.0))
+
+                elif etype == "EV_KEY":
+                    prev = self._buttons.get(code, 0)
+                    pressed = 1 if state else 0
+                    if prev == pressed:
+                        continue
+                    self._buttons[code] = pressed
+                    if pressed:
+                        if code in ("BTN_SOUTH",):
+                            self.enableToggle.emit()
+                        elif code in ("BTN_EAST", "BTN_WEST"):
+                            self.estopRequested.emit()
+                        elif code in ("BTN_NORTH",):
+                            self.homeRequested.emit()
+
+            now = time.time()
+            if self._enabled and (now - last_emit) >= (1 / 60):
+                pitch_deg = self._ly * 30.0
+                roll_deg = self._rx * 30.0
+                yaw_deg = self._lx * 30.0
+                self.anglesChanged.emit(pitch_deg, roll_deg, yaw_deg)
+                last_emit = now
+
+            time.sleep(self._dt)
+
+        self._set_connected(False)
+
+    def _hid_loop(self) -> None:
         if hid is None:
             self.debugEvent.emit("hidapi (hid) library not available; controller disabled.")
             return
 
-        self._running = True
         last_emit = 0.0
 
         while self._running:
@@ -193,16 +293,6 @@ class ControllerWorker(QObject):
         self._close_device()
         self._set_connected(False)
 
-    def stop(self) -> None:
-        self._running = False
-
-    def set_enabled(self, on: bool) -> None:
-        self._enabled = bool(on)
-
-    def toggle_enabled(self) -> None:
-        self._enabled = not self._enabled
-
-    # ===== helpers =======================================================
     def _prepare_report(self, report: bytes) -> bytes:
         return report
 
