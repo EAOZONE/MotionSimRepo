@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
 from ui_form import Ui_Widget  # generated from form.ui
 from readCSV import saveFileAsArr
 from talkToArduino import ArdiunoTalk
+from Controller import Controller
 
 
 def load_stylesheet(app: QApplication, qss_filename: str):
@@ -49,6 +50,7 @@ class Widget(QWidget):
         self.stop_loop = False
         self.enabled = False
         self.arduinoTalker = ArdiunoTalk()
+
 
         # --- Build scene contents in the QGraphicsView (background + logo + title text if you want it as vector) ---
         self.scene = QGraphicsScene(self)
@@ -87,6 +89,23 @@ class Widget(QWidget):
 
         # Keyboard focus for spacebar E-Stop
         self.setFocusPolicy(Qt.StrongFocus)
+
+        self.controller = Controller(
+            angle1_range=(self.angle1.minimum(), self.angle1.maximum()),
+            angle2_range=(self.angle2.minimum(), self.angle2.maximum()),
+            angle3_range=(self.angle3.minimum(), self.angle3.maximum()),
+            deadzone=0.10,  # tweak to taste
+            poll_hz=60
+        )
+        # When controller moves, update sliders and send to Arduino (only if enabled)
+        self.controller.anglesChanged.connect(self._on_controller_angles)
+        # A button = E-Stop
+        self.controller.estopPressed.connect(self.estop_pressed)
+        # START button toggles enable
+        self.controller.enableToggled.connect(lambda _: self.enableAll.toggle())
+
+        # Start controller thread
+        self.controller.start()
 
     # ----------------- Actions / Slots -----------------
 
@@ -139,6 +158,20 @@ class Widget(QWidget):
         self.angle1.setValue(0)
         self.angle2.setValue(0)
         self.angle3.setValue(0)
+
+    def _on_controller_angles(self, a1: int, a2: int, a3: int):
+        # Update UI (no feedback loop jitter: setValue only if changed)
+        if self.angle1.value() != a1:
+            self.angle1.setValue(a1)
+        if self.angle2.value() != a2:
+            self.angle2.setValue(a2)
+        if self.angle3.value() != a3:
+            self.angle3.setValue(a3)
+
+        # Only talk to Arduino when enabled (mirrors your on_dial_rotate_any)
+        if self.enabled:
+            self.arduinoTalker.send_all_angles(a1, a2, a3)
+            print(f"[Controller] Angles: {a1}, {a2}, {a3}")
 
     def on_dial_rotate_any(self):
         if not self.enabled:
