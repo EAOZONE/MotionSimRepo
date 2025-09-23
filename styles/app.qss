@@ -69,6 +69,31 @@ QSlider::handle:horizontal {
 QSlider::sub-page:horizontal { background: #ffa500; border-radius: 4px; }
 QSlider::add-page:horizontal { background: #4f6cc2; border-radius: 4px; }
 
+QSlider::groove:vertical {
+    border: 2px solid white;
+    width: 8px;
+    background: #3853a4;
+    border-radius: 4px;
+}
+
+QSlider::handle:vertical {
+    background: transparent;
+    image: url('../images/gear.png');
+    width: 32px;
+    height: 32px;
+    margin: 0 -12px;
+}
+
+QSlider::sub-page:vertical {
+    background: #ffa500;
+    border-radius: 4px;
+}
+
+QSlider::add-page:vertical {
+    background: #4f6cc2;
+    border-radius: 4px;
+}
+
 /* --- Scroll area (the orange frame) --- */
 QScrollArea#scrollArea {
     border: 3px solid orange;

@@ -39,12 +39,6 @@ class Ui_Widget(object):
         self.labelAct1 = QLabel(Widget)
         self.labelAct1.setObjectName(u"labelAct1")
         self.labelAct1.setGeometry(QRect(100, 230, 180, 18))
-        self.angle1 = QSlider(Widget)
-        self.angle1.setObjectName(u"angle1")
-        self.angle1.setGeometry(QRect(100, 250, 140, 50))
-        self.angle1.setMinimum(-45)
-        self.angle1.setMaximum(45)
-        self.angle1.setOrientation(Qt.Orientation.Horizontal)
         self.labelAct2 = QLabel(Widget)
         self.labelAct2.setObjectName(u"labelAct2")
         self.labelAct2.setGeometry(QRect(100, 305, 180, 18))
@@ -88,6 +82,10 @@ class Ui_Widget(object):
         self.logo = QLabel(Widget)
         self.logo.setObjectName(u"logo")
         self.logo.setGeometry(QRect(0, 0, 63, 20))
+        self.angle1 = QSlider(Widget)
+        self.angle1.setObjectName(u"angle1")
+        self.angle1.setGeometry(QRect(40, 280, 18, 160))
+        self.angle1.setOrientation(Qt.Orientation.Vertical)
 
         self.retranslateUi(Widget)
 
