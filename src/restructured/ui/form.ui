@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Widget</class>
+ <widget class="QWidget" name="Widget">
+  <property name="geometry">
+   <rect><x>0</x><y>0</y><width>800</width><height>600</height></rect>
+  </property>
+  <property name="windowTitle"><string>Motion Simulator User Interface</string></property>
+
+  <!-- Background + overlay (you'll set scene in Python) -->
+  <widget class="QGraphicsView" name="graphicsView">
+   <property name="geometry">
+    <rect><x>0</x><y>0</y><width>800</width><height>600</height></rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
+   </property>
+   <property name="horizontalScrollBarPolicy">
+    <enum>Qt::ScrollBarAlwaysOff</enum>
+   </property>
+   <property name="verticalScrollBarPolicy">
+    <enum>Qt::ScrollBarAlwaysOff</enum>
+   </property>
+  </widget>
+
+  <!-- Labels that were previously drawn via QGraphicsTextItem -->
+  <widget class="QLabel" name="labelActuatorControls">
+   <property name="geometry"><rect><x>60</x><y>190</y><width>200</width><height>24</height></rect></property>
+   <property name="text"><string>Actuator Controls:</string></property>
+  </widget>
+  <widget class="QLabel" name="labelA1">
+   <property name="geometry"><rect><x>100</x><y>230</y><width>160</width><height>20</height></rect></property>
+   <property name="text"><string>Actuator 1 Angle:</string></property>
+  </widget>
+  <widget class="QLabel" name="labelA2">
+   <property name="geometry"><rect><x>100</x><y>305</y><width>160</width><height>20</height></rect></property>
+   <property name="text"><string>Actuator 2 Angle:</string></property>
+  </widget>
+  <widget class="QLabel" name="labelA3">
+   <property name="geometry"><rect><x>100</x><y>380</y><width>160</width><height>20</height></rect></property>
+   <property name="text"><string>Actuator 3 Angle:</string></property>
+  </widget>
+
+  <!-- Sliders -->
+  <widget class="QSlider" name="angle1Slider">
+   <property name="geometry"><rect><x>100</x><y>250</y><width>140</width><height>50</height></rect></property>
+   <property name="orientation"><enum>Qt::Horizontal</enum></property>
+   <property name="minimum"><number>-45</number></property>
+   <property name="maximum"><number>45</number></property>
+  </widget>
+  <widget class="QSlider" name="angle2Slider">
+   <property name="geometry"><rect><x>100</x><y>325</y><width>140</width><height>50</height></rect></property>
+   <property name="orientation"><enum>Qt::Horizontal</enum></property>
+   <property name="minimum"><number>-45</number></property>
+   <property name="maximum"><number>45</number></property>
+  </widget>
+  <widget class="QSlider" name="angle3Slider">
+   <property name="geometry"><rect><x>100</x><y>400</y><width>140</width><height>50</height></rect></property>
+   <property name="orientation"><enum>Qt::Horizontal</enum></property>
+   <property name="minimum"><number>0</number></property>
+   <property name="maximum"><number>180</number></property>
+  </widget>
+
+  <!-- Right-side controls -->
+  <widget class="QPushButton" name="homeButton">
+   <property name="geometry"><rect><x>550</x><y>190</y><width>175</width><height>75</height></rect></property>
+   <property name="text"><string>Reset Actuator Angles</string></property>
+  </widget>
+  <widget class="QCheckBox" name="enableAllCheck">
+   <property name="geometry"><rect><x>550</x><y>290</y><width>175</width><height>75</height></rect></property>
+   <property name="text"><string>Enable All Motors</string></property>
+  </widget>
+  <widget class="QPushButton" name="eStopButton">
+   <property name="geometry"><rect><x>550</x><y>390</y><width>175</width><height>75</height></rect></property>
+   <property name="text"><string>E-Stop</string></property>
+  </widget>
+
+  <!-- Sequences -->
+  <widget class="QLabel" name="labelSequences">
+   <property name="geometry"><rect><x>300</x><y>190</y><width>120</width><height>24</height></rect></property>
+   <property name="text"><string>Sequences:</string></property>
+  </widget>
+  <widget class="QScrollArea" name="scrollArea">
+   <property name="geometry"><rect><x>300</x><y>230</y><width>200</width><height>200</height></rect></property>
+   <property name="widgetResizable"><bool>true</bool></property>
+   <widget class="QWidget" name="scrollAreaWidgetContents">
+    <property name="geometry"><rect><x>0</x><y>0</y><width>198</width><height>198</height></rect></property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
