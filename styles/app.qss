@@ -1,0 +1,106 @@
+/* App-level defaults */
+QWidget {
+    background-image: url('../images/background.png');
+    background-repeat: no-repeat;
+    background-position: center;
+}
+QLabel#titleLabel {
+    color: white;
+    font-family: "Anton";
+    font-size: 18px;
+    qproperty-alignment: 'AlignCenter';
+}
+QLabel#logo {
+    background: transparent;
+    image: url('../images/TPED-logo-cropped.png');   /* uses the image directly */
+    min-width: 200px; min-height: 200px;             /* approximate size */
+}
+QLabel {
+    color: white;
+    font-family: "Anton";
+    font-size: 18px;
+}
+/* Buttons */
+QPushButton {
+    background-color: #3853a4;
+    color: white;
+    border: 3px solid orange;
+    border-radius: 10px;
+    padding: 8px;
+    font-size: 16px;
+}
+QPushButton:hover { background-color: #4f6cc2; }
+QPushButton:pressed { background-color: #2a3b80; }
+
+/* Checkboxes */
+QCheckBox {
+    background-color: #3853a4;
+    color: white;
+    border: 3px solid orange;
+    border-radius: 10px;
+    padding: 8px;
+    font-size: 16px;
+}
+QCheckBox::indicator {
+    width: 20px;
+    height: 20px;
+    border: 2px solid white;
+    background-color: white;
+}
+QCheckBox::indicator:checked {
+    background-color: #ffa500;
+    border: 2px solid white;
+}
+
+/* Slider */
+QSlider::groove:horizontal {
+    border: 2px solid white;
+    height: 8px;
+    background: #3853a4;
+    border-radius: 4px;
+}
+QSlider::handle:horizontal {
+    background: transparent;
+    image: url('../images/gear.png');
+    width: 32px;
+    height: 32px;
+    margin: -12px 0;
+}
+QSlider::sub-page:horizontal { background: #ffa500; border-radius: 4px; }
+QSlider::add-page:horizontal { background: #4f6cc2; border-radius: 4px; }
+
+/* --- Scroll area (the orange frame) --- */
+QScrollArea#scrollArea {
+    border: 3px solid orange;
+    border-radius: 8px;
+}
+
+/* The vertical scrollbar inside it */
+QScrollBar:vertical {
+    background-color: #3853a4;
+    color: white;
+    border: 3px solid orange;
+    border-radius: 10px;
+    padding: 8px;
+}
+
+/* --- Sequence buttons (created dynamically) ---
+   Use a dynamic property so we can target only those buttons */
+QPushButton[sequence="true"] {
+    background-color: #3853a4;
+    color: white;
+    border: 3px solid orange;
+    border-radius: 10px;
+    padding: 8px;
+    font-size: 12px;
+    min-height: 35px;
+    min-width: 125px;
+}
+QPushButton[sequence="true"]:hover {
+    background-color: #4f6cc2;
+}
+QPushButton[sequence="true"]:pressed {
+    background-color: #2a3b80;
+}
+
+
