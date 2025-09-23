@@ -79,6 +79,8 @@ class Ui_Widget(object):
         self.angle1 = QSlider(Widget)
         self.angle1.setObjectName(u"angle1")
         self.angle1.setGeometry(QRect(40, 280, 18, 160))
+        self.angle1.setMinimum(-45)
+        self.angle1.setMaximum(45)
         self.angle1.setOrientation(Qt.Orientation.Vertical)
         self.angle3 = QDial(Widget)
         self.angle3.setObjectName(u"angle3")

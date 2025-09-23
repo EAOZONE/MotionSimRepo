@@ -214,6 +214,12 @@
      <height>160</height>
     </rect>
    </property>
+   <property name="minimum">
+    <number>-45</number>
+   </property>
+   <property name="maximum">
+    <number>45</number>
+   </property>
    <property name="orientation">
     <enum>Qt::Orientation::Vertical</enum>
    </property>

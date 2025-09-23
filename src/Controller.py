@@ -1,14 +1,9 @@
-# controller.py
-# -*- coding: utf-8 -*-
 import threading
 import time
 from typing import Optional, Dict
 
 from PySide6.QtCore import QObject, Signal
 
-# Using inputs for cross-platform joystick events
-# Windows: Xbox controllers show ABS_X/ABS_Y for left stick, ABS_RX/ABS_RY for right stick
-# Triggers often come as ABS_Z (LT) and ABS_RZ (RT)
 from inputs import get_gamepad
 
 
@@ -59,8 +54,6 @@ class Controller(QObject):
             "BTN_SOUTH": 0,   # A
             "BTN_START": 0,   # Start/Menu
         }
-
-    # ---------- Public API ----------
     def start(self):
         if self._running:
             return
@@ -82,7 +75,6 @@ class Controller(QObject):
     ):
         self._angle_ranges = (angle1_range, angle2_range, angle3_range)
 
-    # ---------- Internals ----------
     @staticmethod
     def _norm_axis(v: int) -> float:
         """Normalize raw stick value to [-1, 1]."""
