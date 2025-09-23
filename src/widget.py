@@ -13,8 +13,8 @@ from PySide6.QtWidgets import (
 )
 
 from ui_form import Ui_Widget  # generated from form.ui
-# from readCSV import saveFileAsArr
-# from talkToArduino import ArdiunoTalk
+from readCSV import saveFileAsArr
+from talkToArduino import ArdiunoTalk
 
 
 def load_stylesheet(app: QApplication, qss_filename: str):
@@ -50,7 +50,7 @@ class Widget(QWidget):
         # --- State / hardware ---
         self.stop_loop = False
         self.enabled = False
-        # self.arduinoTalker = ArdiunoTalk()
+        self.arduinoTalker = ArdiunoTalk()
 
         # --- Build scene contents in the QGraphicsView (background + logo + title text if you want it as vector) ---
         self.scene = QGraphicsScene(self)
@@ -107,18 +107,18 @@ class Widget(QWidget):
         if not self.enabled:
             print("Action blocked: System is not enabled.")
             return
-        # arr = saveFileAsArr("test.csv")
+        arr = saveFileAsArr("test.csv")
         self.disable_name_buttons()
         try:
-            # for row in arr:
-            #     if self.stop_loop:
-            #         self.stop_loop = False
-            #         break
-            #     a1, a2, a3 = row[0], row[1], row[2]
-            #     self.arduinoTalker.send_all_angles(a1, a2, a3)
-            #     print(f"Sequence -> {a1}, {a2}, {a3}")
-            #     QApplication.processEvents()
-            #     time.sleep(0.5)
+            for row in arr:
+                if self.stop_loop:
+                    self.stop_loop = False
+                    break
+                a1, a2, a3 = row[0], row[1], row[2]
+                self.arduinoTalker.send_all_angles(a1, a2, a3)
+                print(f"Sequence -> {a1}, {a2}, {a3}")
+                QApplication.processEvents()
+                time.sleep(0.5)
             print("Hi")
         finally:
             self.enable_name_buttons()
