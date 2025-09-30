@@ -102,13 +102,6 @@ def _apply_deadzone(value: float, dead: float) -> float:
     return max(-1.0, min(1.0, value))
 
 
-def _inputs_axis_to_float(val: int) -> float:
-    denom = 32767.0 if val >= 0 else 32768.0
-    if denom == 0:
-        return 0.0
-    return float(val) / denom
-
-
 class ControllerWorker(QObject):
     """Polls a HID game controller and emits motion updates."""
 
@@ -149,6 +142,8 @@ class ControllerWorker(QObject):
         self._xinput_active = False
         self._last_axes_debug = 0.0
         self._xinput_center: Optional[Tuple[int, int, int, int]] = None
+        self._inputs_center: Dict[str, float] = {}
+        self._inputs_span: Dict[str, float] = {}
 
         self._preferred_vendor = _parse_int_env("MOTIONSIM_HID_VENDOR")
         self._preferred_product = _parse_int_env("MOTIONSIM_HID_PRODUCT")
@@ -211,21 +206,21 @@ class ControllerWorker(QObject):
                 if etype == "Sync":
                     continue
 
-                if etype == "EV_ABS":
+                if etype in ("EV_ABS", "Absolute"):
                     if code == "ABS_X":
-                        self._lx = _apply_deadzone(_inputs_axis_to_float(state), self._dead)
+                        self._lx = _apply_deadzone(self._normalize_inputs_axis(state, "lx"), self._dead)
                     elif code == "ABS_Y":
-                        self._ly = _apply_deadzone(-_inputs_axis_to_float(state), self._dead)
+                        self._ly = _apply_deadzone(self._normalize_inputs_axis(state, "ly"), self._dead)
                     elif code == "ABS_RX":
-                        self._rx = _apply_deadzone(_inputs_axis_to_float(state), self._dead)
+                        self._rx = _apply_deadzone(self._normalize_inputs_axis(state, "rx"), self._dead)
                     elif code == "ABS_RY":
-                        self._ry = _apply_deadzone(-_inputs_axis_to_float(state), self._dead)
+                        self._ry = _apply_deadzone(self._normalize_inputs_axis(state, "ry"), self._dead)
                     elif code == "ABS_Z":
                         self._lt = max(-1.0, min(1.0, (state / 255.0) * 2.0 - 1.0))
                     elif code == "ABS_RZ":
                         self._rt = max(-1.0, min(1.0, (state / 255.0) * 2.0 - 1.0))
 
-                elif etype == "EV_KEY":
+                elif etype in ("EV_KEY", "Key"):
                     prev = self._buttons.get(code, 0)
                     pressed = 1 if state else 0
                     if prev == pressed:
@@ -468,6 +463,8 @@ class ControllerWorker(QObject):
         self._xinput_active = False
         self._last_axes_debug = 0.0
         self._xinput_center = None
+        self._inputs_center.clear()
+        self._inputs_span.clear()
 
     def _set_connected(self, on: bool) -> None:
         if on and not self._connected:
@@ -564,6 +561,49 @@ class ControllerWorker(QObject):
         self.debugEvent.emit(
             f"[{tag}] LX={self._lx:.2f} LY={self._ly:.2f} RX={self._rx:.2f} RY={self._ry:.2f} LT={self._lt:.2f} RT={self._rt:.2f}"
         )
+
+    def _normalize_inputs_axis(self, raw: int, axis: str) -> float:
+        center = self._inputs_center.get(axis)
+        span = self._inputs_span.get(axis)
+        if center is None or span is None:
+            center, span = self._guess_inputs_axis_calibration(raw)
+            self._inputs_center[axis] = center
+            self._inputs_span[axis] = span
+            self.debugEvent.emit(
+                f"Calibrated inputs {axis}: center={center:.1f} span={span:.1f}"
+            )
+        else:
+            center = float(center)
+            span = float(span)
+            if span < 1000.0 and abs(float(raw) - center) > 1024.0:
+                center, span = self._guess_inputs_axis_calibration(raw)
+                self._inputs_center[axis] = center
+                self._inputs_span[axis] = span
+                self.debugEvent.emit(
+                    f"Recalibrated inputs {axis}: center={center:.1f} span={span:.1f}"
+                )
+
+        if span == 0:
+            return 0.0
+
+        value = (float(raw) - center) / span
+        value = max(-1.0, min(1.0, value))
+
+        if abs(value) < 0.05:
+            # Slowly recentre when stick returns home.
+            self._inputs_center[axis] = 0.9 * center + 0.1 * float(raw)
+
+        return value
+
+    @staticmethod
+    def _guess_inputs_axis_calibration(raw: int) -> Tuple[float, float]:
+        if 0 <= raw <= 255:
+            return 128.0, 127.0
+        if 0 <= raw <= 1023:
+            return 512.0, 511.0
+        if -32768 <= raw <= 32767:
+            return 0.0, 32767.0
+        return 32768.0, 32767.0
 
 
 def _parse_int_env(name: str) -> Optional[int]:
