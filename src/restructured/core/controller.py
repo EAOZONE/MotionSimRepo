@@ -126,6 +126,7 @@ class ControllerWorker(QObject):
         self._enabled = True
         self._dt = 1.0 / float(max(30, poll_hz))
         self._dead = float(deadzone)
+        self._backend = "hid"
 
         self._device: Optional["hid.Device"] = None
         self._layout: Optional[HIDLayout] = None
@@ -156,7 +157,10 @@ class ControllerWorker(QObject):
     # ===== lifecycle =====================================================
     def start(self) -> None:
         self._running = True
-        if sys.platform.startswith("win") and _inputs_get_gamepad is not None:
+        self._backend = self._select_backend()
+        self.debugEvent.emit(f"Controller backend: {self._backend}")
+
+        if self._backend == "inputs":
             self._inputs_loop()
         else:
             self._hid_loop()
@@ -171,6 +175,13 @@ class ControllerWorker(QObject):
         self._enabled = not self._enabled
 
     # ===== helpers =======================================================
+    def _select_backend(self) -> str:
+        if sys.platform.startswith("win"):
+            if _inputs_get_gamepad is not None:
+                return "inputs"
+            self.debugEvent.emit("inputs library unavailable; falling back to HID backend")
+        return "hid"
+
     def _inputs_loop(self) -> None:
         last_emit = 0.0
         self._set_connected(False)
