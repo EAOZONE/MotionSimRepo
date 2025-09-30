@@ -59,6 +59,16 @@ class MainWindow(QMainWindow):
 
         central = QWidget(self)
         central.setObjectName("centralWidget")
+        central.setAttribute(Qt.WA_StyledBackground, True)  # ensure background paints
+
+        bg = "images/background.png"
+        self.setStyleSheet(f"""
+        QMainWindow, QWidget#centralWidget {{
+            background-image: url('{bg}');
+            background-attachment: fixed;
+            background-size: cover;
+        }}
+        """)
         self.setCentralWidget(central)
 
         main_layout = QVBoxLayout(central)
@@ -82,7 +92,42 @@ class MainWindow(QMainWindow):
         cmd_bar.addWidget(self.btn_stop_top)
         cmd_bar.addWidget(self.btn_gamepad_toggle)
         cmd_bar.addWidget(self.btn_enable_toggle)
+
+        self.dock_ard = QtWidgets.QDockWidget("Arduino", self)
+        self.dock_ard.hide()
+        self.dock_ard.setObjectName("dockArduino")  # needed for saveState/restoreState
+        self.dock_ard.setFloating(True)
+        self.dock_ard.setFeatures(
+            QtWidgets.QDockWidget.DockWidgetClosable |
+            QtWidgets.QDockWidget.DockWidgetMovable |
+            QtWidgets.QDockWidget.DockWidgetFloatable
+        )
+        self.dock_ard.setMaximumHeight(260)
+        self.cb_show_arduino = QCheckBox("Arduino")
+        self.cb_show_arduino.setChecked(False)  # visible by default
+        self.cb_show_arduino.toggled.connect(self.dock_ard.setVisible)
+
+        cmd_bar.addWidget(self.cb_show_arduino)
+
+        self.dock_log = QtWidgets.QDockWidget("Log", self)
+        self.dock_log.hide()
+        self.dock_log.setObjectName("dockLog")  # needed for saveState/restoreState
+        self.dock_log.setFloating(True)
+        self.dock_log.setFeatures(
+            QtWidgets.QDockWidget.DockWidgetClosable |
+            QtWidgets.QDockWidget.DockWidgetMovable |
+            QtWidgets.QDockWidget.DockWidgetFloatable
+        )
+        self.dock_log.setMaximumHeight(260)
+        self.cb_show_log = QCheckBox("Log")
+        self.cb_show_log.setChecked(False)  # visible by default
+        self.cb_show_log.toggled.connect(self.dock_log.setVisible)
+
+        cmd_bar.addWidget(self.cb_show_log)
         cmd_bar.addStretch(1)
+        self.cb_show_arduino.setProperty("pill", True)
+        self.cb_show_log.setProperty("pill", True)
+
         main_layout.addLayout(cmd_bar)
 
         # ---- Main content layout ---------------------------------------------
@@ -164,15 +209,6 @@ class MainWindow(QMainWindow):
         center_col.setContentsMargins(0, 0, 0, 0)
         center_col.setSpacing(12)
 
-        self.display_img = QLabel()
-        self.display_img.setObjectName("displayImage")
-        self.display_img.setAlignment(Qt.AlignCenter)
-        self.display_img.setMinimumSize(420, 320)
-        self.display_img.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self._base_pixmap: Optional[QPixmap] = None
-        self._load_display_image()
-        center_col.addWidget(self.display_img, 1)
-
         sequence_box = QGroupBox("Sequences")
         sequence_box.setObjectName("sequenceBox")
         seq_layout = QVBoxLayout(sequence_box)
@@ -186,6 +222,16 @@ class MainWindow(QMainWindow):
             seq_layout.addWidget(btn)
             self._sequence_buttons.append(btn)
         center_col.addWidget(sequence_box, 0, alignment=Qt.AlignHCenter)
+        g_log = QGroupBox("Log")
+        v_log = QVBoxLayout(g_log)
+        v_log.setSpacing(4)
+        self.txt_log = QTextEdit()
+        self.txt_log.setReadOnly(True)
+        self.txt_log.setMinimumHeight(150)
+        v_log.addWidget(self.txt_log)
+        self.dock_log.setWidget(g_log)
+        self.dock_log.hide()
+        self.addDockWidget(Qt.RightDockWidgetArea, self.dock_log)
 
         hint = QLabel("Gamepad mapping: LX → Yaw, LY → Pitch, RX → Roll")
         hint.setObjectName("hintLabel")
@@ -235,7 +281,7 @@ class MainWindow(QMainWindow):
 
         g_ctrl = QGroupBox("Controller")
         v_ctrl = QVBoxLayout(g_ctrl)
-        v_ctrl.setSpacing(8)
+        v_ctrl.setSpacing(15)
         self.lbl_ctrl_status = QLabel("Controller: Disconnected")
         self.chk_ctrl_drive = QCheckBox("Drive manual controls")
         self.chk_ctrl_drive.setChecked(True)
@@ -272,16 +318,11 @@ class MainWindow(QMainWindow):
         v_ard.addWidget(self.lbl_ard_status)
         v_ard.addWidget(self.lbl_ack)
         v_ard.addWidget(self.lbl_err)
-        right_col.addWidget(g_ard)
+        self.dock_ard.setWidget(g_ard)
+        self.dock_ard.hide()
+        self.addDockWidget(Qt.RightDockWidgetArea, self.dock_ard)
 
-        g_log = QGroupBox("Log")
-        v_log = QVBoxLayout(g_log)
-        v_log.setSpacing(4)
-        self.txt_log = QTextEdit()
-        self.txt_log.setReadOnly(True)
-        self.txt_log.setMinimumHeight(150)
-        v_log.addWidget(self.txt_log)
-        right_col.addWidget(g_log, 1)
+
         right_col.addStretch(1)
         right_widget.setMinimumWidth(320)
         content.addWidget(right_widget, 0)
@@ -313,31 +354,7 @@ class MainWindow(QMainWindow):
         self.btn_seq_abort.clicked.connect(self._seq_abort)
         self.btn_connect.clicked.connect(self._arduino_connect_clicked)
 
-        self._update_display_pixmap()
         self._set_sequence_running(False)
-
-    # --- Helpers -----------------------------------------------------
-    def _load_display_image(self):
-        for path in ("images/GUI-img.png", "images/background.png", "images/img.png"):
-            pix = QPixmap((APP_ROOT / path).resolve())
-            if not pix.isNull():
-                self._base_pixmap = pix
-                self.display_img.setPixmap(pix)
-                return
-        self._base_pixmap = None
-        self.display_img.clear()
-
-    def _update_display_pixmap(self):
-        if self._base_pixmap is None or self.display_img.width() <= 0:
-            return
-        scaled = self._base_pixmap.scaled(
-            self.display_img.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
-        )
-        self.display_img.setPixmap(scaled)
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self._update_display_pixmap()
 
     # --- Worker setup ------------------------------------------------
     def _start_workers(self):

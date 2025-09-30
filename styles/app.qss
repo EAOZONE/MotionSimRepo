@@ -1,8 +1,10 @@
-/* App-level defaults */
-QWidget {
-    background-image: url('../images/background.png');
-    background-repeat: no-repeat;
-    background-position: center;
+QMainWindow,
+QWidget#centralWidget {
+    height:1080px;
+    width: 1920px;
+    background-image: url('images/background.png');
+    background-attachment: fixed;
+    background-size: cover;  /* <- fills corner-to-corner */
 }
 QLabel#titleLabel {
     color: white;
@@ -18,7 +20,12 @@ QLabel#logo {
 QLabel {
     color: white;
     font-family: "Anton";
-    font-size: 18px;
+    font-size: 12px;
+}
+QLabel#hintLabel {
+    color: blue;
+    font-family: "Anton";
+    font-size: 12px;
 }
 
 QGroupBox {
@@ -33,7 +40,7 @@ QGroupBox::title {
     subcontrol-origin: margin;
     left: 20px;
     padding: 4px 12px;
-    color: #ffe8b0;
+    color: blue;
     font-size: 18px;
     font-weight: bold;
 }
@@ -43,20 +50,21 @@ QPushButton {
     color: white;
     border: 3px solid orange;
     border-radius: 10px;
-    padding: 8px;
-    font-size: 16px;
+    font-size: 12px;
 }
 QPushButton:hover { background-color: #4f6cc2; }
 QPushButton:pressed { background-color: #2a3b80; }
 
 /* Checkboxes */
 QCheckBox {
+    width: 40px;
+    height: 40px;
     background-color: #3853a4;
     color: white;
     border: 3px solid orange;
     border-radius: 10px;
-    padding: 8px;
-    font-size: 16px;
+    font-size: 12px;
+    min-height: 20px;
 }
 QCheckBox::indicator {
     width: 20px;
@@ -68,6 +76,24 @@ QCheckBox::indicator:checked {
     background-color: #ffa500;
     border: 2px solid white;
 }
+QCheckBox[pill="true"] {
+    height: 12px;
+    background-color: #3853a4;
+    color: white;
+    border: 3px solid orange;
+    border-radius: 10px;
+    font-size: 12px;
+}
+QCheckBox[pill="true"]::indicator {
+    width: 8px;
+    height: 8px;
+    border: 1px solid white;
+    background-color: white;
+}
+QCheckBox[pill="true"]::indicator:checked {
+    background-color: #ffa500;
+    border: 1px solid white;
+}
 
 /* Slider */
 QSlider::groove:horizontal {
@@ -78,10 +104,9 @@ QSlider::groove:horizontal {
 }
 QSlider::handle:horizontal {
     background: transparent;
-    image: url('../images/gear.png');
-    width: 32px;
-    height: 32px;
-    margin: -12px 0;
+    image: url('images/gear.png');
+    width: 16px;
+    height: 16px;
 }
 QSlider::sub-page:horizontal { background: #ffa500; border-radius: 4px; }
 QSlider::add-page:horizontal { background: #4f6cc2; border-radius: 4px; }
@@ -180,6 +205,9 @@ QPushButton[sequence="true"]:hover {
 }
 QPushButton[sequence="true"]:pressed {
     background-color: #2a3b80;
+}
+QPushButton#estop{
+    background-color:red;
 }
 
 QLineEdit,
