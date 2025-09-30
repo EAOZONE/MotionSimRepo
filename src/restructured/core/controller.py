@@ -214,7 +214,7 @@ class ControllerWorker(QObject):
                     elif code == "ABS_RX":
                         self._rx = _apply_deadzone(self._normalize_inputs_axis(state, "rx"), self._dead)
                     elif code == "ABS_RY":
-                        self._ry = _apply_deadzone(-self._normalize_inputs_axis(state, "ry"), self._dead)
+                        self._ry = _apply_deadzone(self._normalize_inputs_axis(state, "ry"), self._dead)
                     elif code == "ABS_Z":
                         self._lt = max(-1.0, min(1.0, (state / 255.0) * 2.0 - 1.0))
                     elif code == "ABS_RZ":
