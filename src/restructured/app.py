@@ -32,7 +32,7 @@ def parse_args(argv: list[str] | None = None):
     import argparse
 
     p = argparse.ArgumentParser(description="Motion Simulator UI")
-    p.add_argument("--qss", type=str, default="ui/styles.qss",
+    p.add_argument("--qss", type=str, default="../../styles/app.qss",
                    help="Path to a Qt stylesheet (.qss). Use empty string to skip.")
     p.add_argument("--log", type=str, default="INFO",
                    help="Log level: DEBUG/INFO/WARNING/ERROR")
@@ -59,22 +59,48 @@ def install_sigint_handler(app: QtWidgets.QApplication):
 
 
 
-
 def try_apply_stylesheet(app: QtWidgets.QApplication, qss_path_str: str):
     """Apply a QSS file if present and valid; never crash the app on QSS errors."""
     if not qss_path_str:
         logging.info("Stylesheet skipped (empty path).")
         return
-    qss_path = (APP_ROOT / qss_path_str) if not qss_path_str.startswith("/") else Path(qss_path_str)
-    if not qss_path.exists():
-        logging.warning(f"Stylesheet not found: {qss_path}")
-        return
-    try:
-        css = qss_path.read_text(encoding="utf-8")
+
+    candidates = []
+    raw_path = Path(qss_path_str)
+    if raw_path.is_absolute():
+        candidates.append(raw_path)
+    else:
+        # Search a few sensible locations relative to the app and repo root.
+        names = {raw_path}
+        if raw_path.suffix == "":
+            names.add(raw_path.with_suffix(".qss"))
+        for name in names:
+            candidates.extend([
+                (APP_ROOT / name),
+                (APP_ROOT / "ui" / name),
+                (APP_ROOT.parent / name),
+                (APP_ROOT.parent / "styles" / name.name),
+                (APP_ROOT.parent.parent / "styles" / name.name),
+            ])
+
+    seen = set()
+    for candidate in candidates:
+        candidate = candidate.resolve()
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        if not candidate.exists():
+            continue
+        try:
+            css = candidate.read_text(encoding="utf-8")
+        except Exception as exc:
+            logging.warning(f"Skipping stylesheet ({candidate}): {exc}")
+            continue
         app.setStyleSheet(css)
-        logging.info(f"Applied stylesheet: {qss_path}")
-    except Exception as e:
-        logging.warning(f"Skipping stylesheet ({qss_path}): {e}")
+        logging.info(f"Applied stylesheet: {candidate}")
+        return
+
+    logging.warning("Stylesheet not found: %s", qss_path_str)
 
 
 def main(argv: list[str] | None = None) -> int:
