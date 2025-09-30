@@ -159,6 +159,8 @@ class MainWindow(QMainWindow):
 
         g_angles = QGroupBox("Manual Control (°)")
         g_angles.setObjectName("manualGroup")
+        self.g_angles = g_angles
+        self.g_angles.setEnabled(False)
         grid = QGridLayout(g_angles)
         grid.setHorizontalSpacing(10)
         grid.setVerticalSpacing(8)
@@ -294,6 +296,12 @@ class MainWindow(QMainWindow):
             bar.setFormat(f"{name} %v")
         v_ctrl.addWidget(self.lbl_ctrl_status)
         v_ctrl.addWidget(self.chk_ctrl_drive)
+
+        self.cb_show_arduino.setProperty("pill", True)
+        self.pb_lx.setProperty("controller", True)
+        self.pb_ly.setProperty("controller", True)
+        self.pb_rx.setProperty("controller", True)
+        self.pb_ry.setProperty("controller", True)
         v_ctrl.addWidget(self.pb_lx)
         v_ctrl.addWidget(self.pb_ly)
         v_ctrl.addWidget(self.pb_rx)
@@ -402,6 +410,7 @@ class MainWindow(QMainWindow):
             self.btn_estop.setChecked(False)
         self.lbl_status.setText("Enabled" if enabled else "Disabled")
         self._log("System enabled" if enabled else "System disabled")
+        self.g_angles.setEnabled(enabled)
 
     def _on_drive_manual_toggled(self, enabled: bool):
         self._drive_manual = enabled

@@ -1,9 +1,8 @@
 QMainWindow,
 QWidget#centralWidget {
-    height:1080px;
-    width: 1920px;
     background-image: url('images/background.png');
     background-attachment: fixed;
+    background-position: bottom center;
     background-size: cover;  /* <- fills corner-to-corner */
 }
 QLabel#titleLabel {
@@ -23,7 +22,7 @@ QLabel {
     font-size: 12px;
 }
 QLabel#hintLabel {
-    color: blue;
+    color: orange;
     font-family: "Anton";
     font-size: 12px;
 }
@@ -35,14 +34,14 @@ QGroupBox {
     margin-top: 18px;
     padding: 18px;
     color: white;
+    font-size: 18px;
+    font-weight: bold;
 }
 QGroupBox::title {
     subcontrol-origin: margin;
     left: 20px;
     padding: 4px 12px;
-    color: blue;
-    font-size: 18px;
-    font-weight: bold;
+    color: orange;
 }
 /* Buttons */
 QPushButton {
@@ -98,7 +97,7 @@ QCheckBox[pill="true"]::indicator:checked {
 /* Slider */
 QSlider::groove:horizontal {
     border: 2px solid white;
-    height: 8px;
+    height: 20px;
     background: #3853a4;
     border-radius: 4px;
 }
@@ -238,11 +237,20 @@ QProgressBar::chunk {
     background: #ffa500;
     border-radius: 8px;
 }
+QProgressBar[controller="true"]{
+    max-height:14px;
+    border: 2px solid rgba(255, 165, 0, 0.8);
+    border-radius: 10px;
+    text-align: center;
+    background: rgba(20, 40, 100, 0.85);
+    color: white;
+}
 
 QStatusBar {
     background: rgba(25, 45, 110, 0.85);
     color: #ffe8b0;
     border-top: 2px solid orange;
 }
+
 
 
