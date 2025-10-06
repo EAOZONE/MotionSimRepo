@@ -32,7 +32,7 @@ def parse_args(argv: list[str] | None = None):
     import argparse
 
     p = argparse.ArgumentParser(description="Motion Simulator UI")
-    p.add_argument("--qss", type=str, default="../../styles/app.qss",
+    p.add_argument("--qss", type=str, default="../ui/styles.qss",
                    help="Path to a Qt stylesheet (.qss). Use empty string to skip.")
     p.add_argument("--log", type=str, default="INFO",
                    help="Log level: DEBUG/INFO/WARNING/ERROR")

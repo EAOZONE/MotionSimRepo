@@ -61,7 +61,7 @@ class MainWindow(QMainWindow):
         central.setObjectName("centralWidget")
         central.setAttribute(Qt.WA_StyledBackground, True)  # ensure background paints
 
-        bg = "images/background.png"
+        bg = "../images/background.png"
         self.setStyleSheet(f"""
         QMainWindow, QWidget#centralWidget {{
             background-image: url('{bg}');
