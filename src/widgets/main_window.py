@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import logging
 from functools import partial
 from pathlib import Path
@@ -60,6 +61,7 @@ class MainWindow(QMainWindow):
         central = QWidget(self)
         central.setObjectName("centralWidget")
         central.setAttribute(Qt.WA_StyledBackground, True)  # ensure background paints
+        central.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
         bg = "../images/background.png"
         self.setStyleSheet(f"""
@@ -102,7 +104,7 @@ class MainWindow(QMainWindow):
             QtWidgets.QDockWidget.DockWidgetMovable |
             QtWidgets.QDockWidget.DockWidgetFloatable
         )
-        self.dock_ard.setMaximumHeight(260)
+        self.dock_ard.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.cb_show_arduino = QCheckBox("Arduino")
         self.cb_show_arduino.setChecked(False)  # visible by default
         self.cb_show_arduino.toggled.connect(self.dock_ard.setVisible)
@@ -118,13 +120,12 @@ class MainWindow(QMainWindow):
             QtWidgets.QDockWidget.DockWidgetMovable |
             QtWidgets.QDockWidget.DockWidgetFloatable
         )
-        self.dock_log.setMaximumHeight(260)
+        self.dock_log.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.cb_show_log = QCheckBox("Log")
         self.cb_show_log.setChecked(False)  # visible by default
         self.cb_show_log.toggled.connect(self.dock_log.setVisible)
 
         cmd_bar.addWidget(self.cb_show_log)
-        cmd_bar.addStretch(1)
         self.cb_show_arduino.setProperty("pill", True)
         self.cb_show_log.setProperty("pill", True)
 
@@ -148,7 +149,7 @@ class MainWindow(QMainWindow):
         v_safety.setSpacing(8)
         self.btn_estop = QPushButton("E-STOP")
         self.btn_estop.setObjectName("estop")
-        self.btn_estop.setMinimumSize(180, 110)
+        self.btn_estop.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.btn_estop.setCheckable(True)
         self.chk_enable = QCheckBox("Enable / Arm system")
         self.chk_enable.setChecked(False)
@@ -201,7 +202,7 @@ class MainWindow(QMainWindow):
 
         left_col.addWidget(g_angles, 1)
         left_col.addStretch(1)
-        left_widget.setMinimumWidth(280)
+        left_widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         content.addWidget(left_widget, 0)
 
         # -------- Centre column: display + quick sequences --------
@@ -216,20 +217,21 @@ class MainWindow(QMainWindow):
         seq_layout = QVBoxLayout(sequence_box)
         seq_layout.setContentsMargins(18, 12, 18, 16)
         seq_layout.setSpacing(10)
+        sequence_box.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         for name in ("Sequence 1", "Sequence 2", "Sequence 3", "Sequence 4"):
             btn = QPushButton(name)
             btn.setProperty("sequence", True)
-            btn.setMinimumHeight(40)
+            btn.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
             btn.clicked.connect(partial(self._run_sequence_preset, name))
             seq_layout.addWidget(btn)
             self._sequence_buttons.append(btn)
-        center_col.addWidget(sequence_box, 0, alignment=Qt.AlignHCenter)
+        center_col.addWidget(sequence_box, 1)
         g_log = QGroupBox("Log")
         v_log = QVBoxLayout(g_log)
         v_log.setSpacing(4)
         self.txt_log = QTextEdit()
         self.txt_log.setReadOnly(True)
-        self.txt_log.setMinimumHeight(150)
+        self.txt_log.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         v_log.addWidget(self.txt_log)
         self.dock_log.setWidget(g_log)
         self.dock_log.hide()
@@ -239,6 +241,7 @@ class MainWindow(QMainWindow):
         hint.setObjectName("hintLabel")
         hint.setAlignment(Qt.AlignCenter)
         center_col.addWidget(hint)
+        center_widget.setMaximumWidth(500)
         content.addWidget(center_widget, 1)
 
         # -------- Right column: automation / controller --------
@@ -268,16 +271,18 @@ class MainWindow(QMainWindow):
         top_row.addWidget(self.le_dt)
         v_seq.addLayout(top_row)
         self.seq_list = QListWidget()
-        self.seq_list.setMinimumHeight(160)
+        self.seq_list.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         v_seq.addWidget(self.seq_list)
         btn_row = QHBoxLayout()
         btn_row.setSpacing(8)
         self.btn_seq_run = QPushButton("Run")
         self.btn_seq_pause = QPushButton("Pause")
         self.btn_seq_abort = QPushButton("Abort")
+        self.btn_seq_append = QPushButton("Append")
         btn_row.addWidget(self.btn_seq_run)
         btn_row.addWidget(self.btn_seq_pause)
         btn_row.addWidget(self.btn_seq_abort)
+        btn_row.addWidget(self.btn_seq_append)
         v_seq.addLayout(btn_row)
         right_col.addWidget(g_seq)
 
@@ -332,7 +337,7 @@ class MainWindow(QMainWindow):
 
 
         right_col.addStretch(1)
-        right_widget.setMinimumWidth(320)
+        right_widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         content.addWidget(right_widget, 0)
 
         # Status bar
@@ -360,6 +365,7 @@ class MainWindow(QMainWindow):
         self.btn_seq_run.clicked.connect(self._seq_run)
         self.btn_seq_pause.clicked.connect(self._seq_pause)
         self.btn_seq_abort.clicked.connect(self._seq_abort)
+        self.btn_seq_append.clicked.connect(self._append_angles)
         self.btn_connect.clicked.connect(self._arduino_connect_clicked)
 
         self._set_sequence_running(False)
@@ -428,6 +434,26 @@ class MainWindow(QMainWindow):
         if target is None:
             target = self.pitch_spn
         target.setValue(target.value() + delta)
+
+    def _current_angles_triplet(self) -> tuple[float, float, float]:
+        """Read the UI’s current angles (deg)."""
+        return float(self.pitch_spn.value()), float(self.roll_spn.value()), float(self.yaw_spn.value())
+
+    def _refresh_seq_preview(self, limit: int = 200) -> None:
+        """Refresh the right-side preview list from the current CSV."""
+        if self._csv_path is None:
+            self.seq_list.clear()
+            return
+        try:
+            self.seq_list.clear()
+            with open(self._csv_path, "r", newline="") as fh:
+                reader = csv.reader(fh)
+                for idx, row in enumerate(reader):
+                    self.seq_list.addItem(", ".join(row[:3]))
+                    if idx + 1 >= limit:
+                        break
+        except Exception as exc:
+            self._log(f"CSV read error: {exc}")
 
     @Slot()
     def _send_all_angles(self):
@@ -564,6 +590,27 @@ class MainWindow(QMainWindow):
             pass
         finally:
             self._set_sequence_running(False)
+
+    def _append_angles(self):
+        if self._csv_path is None:
+            self._log("Load a CSV file first.")
+            return
+        if self.seq_thread is not None and self.seq_thread.isRunning():
+            self._log("Stop the running sequence before appending.")
+            return
+
+        pitch, roll, yaw = self._current_angles_triplet()
+        row = [f"{int(pitch)}", f"{int(roll)}", f"{int(yaw)}"]
+
+        try:
+            with open(self._csv_path, "a", newline="") as fh:
+                writer = csv.writer(fh)
+                writer.writerow(row)
+            # Fast UI feedback: just add the item (no full refresh needed)
+            self.seq_list.addItem(", ".join(row))
+            self._log(f"Appended current angles to {self._csv_path.name}: {row}")
+        except Exception as exc:
+            self._log(f"CSV write error: {exc}")
 
     def _arduino_connect_clicked(self):
         self._log(f"Connect clicked to port: {self.cb_port.currentText()}")

@@ -103,7 +103,7 @@ QSlider::groove:horizontal {
 }
 QSlider::handle:horizontal {
     background: transparent;
-    image: url('images/gear.png');
+    image: url('../images/gear.png');
     width: 16px;
     height: 16px;
 }
@@ -251,6 +251,4 @@ QStatusBar {
     color: #ffe8b0;
     border-top: 2px solid orange;
 }
-
-
 
