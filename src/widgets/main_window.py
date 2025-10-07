@@ -406,6 +406,15 @@ class MainWindow(QMainWindow):
         self.lbl_status.setText("E-STOP engaged")
         self._log("E-STOP engaged")
 
+        # --- stop any active sequence immediately ---
+        if self.seq is not None:
+            try:
+                self.seq.stop()
+                self._log("Sequence stopped due to E-STOP")
+            except Exception as exc:
+                self._log(f"Error stopping sequence on E-STOP: {exc}")
+        self._set_sequence_running(False)
+
     @Slot(bool)
     def _on_enable_changed(self, enabled: bool):
         self._enabled = enabled
@@ -600,7 +609,7 @@ class MainWindow(QMainWindow):
             return
 
         pitch, roll, yaw = self._current_angles_triplet()
-        row = [f"{int(pitch)}", f"{int(roll)}", f"{int(yaw)}"]
+        row = [f"{int(pitch)}", f"{int(roll)}", f"{int(yaw)}", f"{self.le_dt.value()}"]
 
         try:
             with open(self._csv_path, "a", newline="") as fh:
