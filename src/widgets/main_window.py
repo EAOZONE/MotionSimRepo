@@ -536,6 +536,15 @@ class MainWindow(QMainWindow):
         except Exception as exc:
             self._log(f"CSV read error: {exc}")
 
+    @Slot(float, float, float)
+    def _on_seq_step(self, pitch: float, roll: float, yaw: float):
+        """
+        Mirror the running sequence's current step into the Manual Control widgets.
+        Using _sync_manual_controls prevents valueChanged signals from firing,
+        so we won't accidentally call _send_all_angles again.
+        """
+        self._sync_manual_controls(int(pitch), int(roll), int(yaw))
+
     def _run_sequence_path(self, path: Path):
         if not self._enabled:
             self._log("Enable the system before running sequences.")
@@ -560,6 +569,7 @@ class MainWindow(QMainWindow):
         worker.moveToThread(thread)
         thread.started.connect(worker.run)
         worker.stepEmitted.connect(self.arduino.send_angles)
+        worker.stepEmitted.connect(self._on_seq_step)
         worker.finished.connect(thread.quit)
         worker.aborted.connect(thread.quit)
         worker.finished.connect(worker.deleteLater)
