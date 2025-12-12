@@ -18,6 +18,9 @@ from PySide6.QtWidgets import (
 from core.arduino import ArduinoWorker
 from core.controller import ControllerWorker
 from core.sequence import SequenceWorker
+from core.util import *
+
+from src.core.util import kinematics_angles_to_actuators
 
 MODULE_DIR = Path(__file__).resolve().parent
 APP_ROOT = MODULE_DIR.parent
@@ -170,12 +173,12 @@ class MainWindow(QMainWindow):
             lbl = QLabel(label)
             lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             sld = QSlider(Qt.Horizontal)
-            sld.setRange(-30, 30)
+            sld.setRange(-45, 45)
             dial = QDial()
-            dial.setRange(-30, 30)
+            dial.setRange(-45, 45)
             dial.setNotchesVisible(True)
             spin = QSpinBox()
-            spin.setRange(-30, 30)
+            spin.setRange(-45, 45)
             sld.valueChanged.connect(dial.setValue)
             sld.valueChanged.connect(spin.setValue)
             dial.valueChanged.connect(sld.setValue)
@@ -468,8 +471,10 @@ class MainWindow(QMainWindow):
     def _send_all_angles(self):
         if not self._enabled:
             return
+        print("Sending all angles...")
+        a1, a2 = kinematics_angles_to_actuators(self.pitch_spn.value(), self.roll_spn.value())
         self.arduino.send_angles(
-            self.pitch_spn.value(), self.roll_spn.value(), self.yaw_spn.value()
+            a1, a2, self.yaw_spn.value()
         )
 
     @Slot(float, float, float)
@@ -504,7 +509,7 @@ class MainWindow(QMainWindow):
 
     def _sync_manual_controls(self, pitch: int, roll: int, yaw: int) -> None:
         def apply_triplet(attrs, value):
-            value = max(-30, min(30, value))
+            value = max(-60, min(30, value))
             blockers = [QtCore.QSignalBlocker(widget) for widget in attrs]
             slider, dial, spin = attrs
             slider.setValue(value)

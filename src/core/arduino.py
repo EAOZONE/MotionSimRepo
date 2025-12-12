@@ -2,19 +2,21 @@
 from PySide6.QtCore import QObject, QThread, Signal, Slot
 import serial, serial.tools.list_ports, time, queue, threading
 
+
 class ArduinoWorker(QObject):
     connected = Signal(str)
     disconnected = Signal(str)
     ack = Signal(str)
     error = Signal(str)
 
-    def __init__(self, preferred_port: str | None = None, baud=115200, parent=None):
+    def __init__(self, preferred_port: str | None = None, baud=9600, parent=None):
         super().__init__(parent)
         self._ser = None
         self._baud = baud
         self._port = preferred_port
         self._cmd_q = queue.Queue()
         self._stop = threading.Event()
+        self._max_wait_s = 60.0  # how long to wait for "Finished"
 
     def start(self):
         self._open_serial()
@@ -54,32 +56,52 @@ class ArduinoWorker(QObject):
                 cmd = self._cmd_q.get(timeout=0.05)
             except queue.Empty:
                 continue
+
             if not self._ser:
                 self._open_serial()
                 if not self._ser:
                     self.error.emit("No serial; dropping command")
                     continue
+
             try:
+                # clear any stale output
                 self._ser.reset_input_buffer()
+
+                # send command
                 self._ser.write((cmd + "\n").encode())
-                # simple blocking wait for DONE/OK with timeout
+
+                # blocking wait for "Finished" with timeout
                 t0 = time.time()
-                while time.time() - t0 < 1.0:
+                finished = False
+                while time.time() - t0 < self._max_wait_s:
                     line = self._ser.readline()
                     if not line:
                         continue
                     s = line.decode(errors="ignore").strip()
-                    if s in ("DONE", "OK"):
-                        self.ack.emit(s)
+
+                    # optional: you can log/forward other messages here if desired
+                    print("ARDUINO:", s)
+
+                    if s == "Finished" or "Finished" in s:
+                        self.ack.emit("Finished")
+                        finished = True
                         break
+
+                if not finished:
+                    self.error.emit("Timeout waiting for 'Finished' from Arduino")
+
             except Exception as e:
                 self.error.emit(f"Write/read failed: {e}")
-                try: self._ser.close()
-                except: pass
+                try:
+                    self._ser.close()
+                except:
+                    pass
                 self._ser = None
 
     @Slot(float, float, float)
     def send_angles(self, a1: float, a2: float, a3: float):
         # prepare clamped integer command once here
-        cmd = f"{int(a1)},{int(a2)},{int(a3)}"
+        a1, a2 = a1, a2
+        cmd = f"{a1},{a2},{a3}"
+        print(cmd)
         self._cmd_q.put(cmd)
